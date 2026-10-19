@@ -11,10 +11,11 @@ on:
     - cron: "50 12 * * *"
   workflow_dispatch:
     inputs:
-      test:
-        description: "テスト実行（投稿せず、返信文の作成だけ確認）"
-        type: boolean
-        default: true
+      mode:
+        description: "sample=見本で確認 / preview=実際のコメントで下見（投稿しない） / live=実際に返信"
+        type: choice
+        options: [preview, sample, live]
+        default: preview
 
 permissions:
   contents: write
@@ -39,7 +40,7 @@ jobs:
         env:
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          REPLY_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.test && '1' || '0' }}
+          REPLY_TEST: ${{ github.event_name != 'workflow_dispatch' && '0' || inputs.mode == 'sample' && '1' || inputs.mode == 'preview' && 'preview' || '0' }}
         run: python auto_reply.py
       - name: 記録を保存
         if: always()

@@ -66,6 +66,27 @@ def get_comments(media_id: str) -> list[dict]:
     return res.get("data", [])
 
 
+MAX_IMAGES = 10
+MAX_IMAGE_BYTES = 3_500_000
+
+
+def fetch_image(url: str) -> tuple[str, str] | None:
+    """コメントの写真を取得して (media_type, base64) を返す。失敗したら None。"""
+    import base64
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(url, timeout=20) as res:
+            ctype = (res.headers.get("Content-Type") or "image/jpeg").split(";")[0].strip()
+            data = res.read(MAX_IMAGE_BYTES + 1)
+    except Exception as e:  # noqa: BLE001
+        print(f"写真を取得できませんでした：{e}")
+        return None
+    if len(data) > MAX_IMAGE_BYTES or ctype not in ("image/jpeg", "image/png", "image/webp", "image/gif"):
+        return None
+    return ctype, base64.b64encode(data).decode()
+
+
 def validate_reply(text: str) -> str | None:
     text = (text or "").strip()
     if not text:
@@ -77,13 +98,22 @@ def validate_reply(text: str) -> str | None:
     return None
 
 
-def ask_claude(items: list[dict]) -> list[dict]:
+def ask_claude(items: list[dict], images: dict[str, tuple[str, str]] | None = None) -> list[dict]:
+    images = images or {}
+    for it in items:
+        it["photo_attached"] = it["id"] in images
     prompt = (
         RULES.read_text()
         + "\n\n## 今回のコメント（JSON）\n\n"
         + json.dumps(items, ensure_ascii=False, indent=2)
         + "\n\n上のルールに従い、すべてのコメントについてJSON配列だけを出力してください。"
     )
+    content: list[dict] = [{"type": "text", "text": prompt}]
+    for cid, (mtype, b64) in images.items():
+        content.append({"type": "text", "text": f"↓ コメントID {cid} に添付された写真"})
+        content.append({"type": "image", "source": {"type": "base64", "media_type": mtype, "data": b64}})
+    message = {"type": "user", "message": {"role": "user", "content": content}}
+
     # Threads・GitHub のトークンは渡さない
     env = {k: v for k, v in os.environ.items() if k not in ("THREADS_ACCESS_TOKEN", "GITHUB_TOKEN")}
     # ターミナルからコピーすると途中に改行が入ることがあるので、空白・改行を取り除く
@@ -95,20 +125,31 @@ def ask_claude(items: list[dict]) -> list[dict]:
                 "claude", "-p",
                 "--tools", "",
                 "--model", "sonnet",
-                "--output-format", "text",
+                "--input-format", "stream-json",
+                "--output-format", "stream-json",
+                "--verbose",
                 "--no-session-persistence",
                 "--strict-mcp-config",
             ],
-            input=prompt,
+            input=json.dumps(message, ensure_ascii=False) + "\n",
             capture_output=True,
             text=True,
             cwd=tmp,
             env=env,
             timeout=600,
         )
-    if res.returncode != 0:
+    out = ""
+    for line in res.stdout.splitlines():
+        try:
+            ev = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if ev.get("type") == "result":
+            out = ev.get("result") or ""
+            if ev.get("is_error"):
+                raise RuntimeError(f"Claude の実行に失敗しました：{out[:500]}")
+    if res.returncode != 0 and not out:
         raise RuntimeError(f"Claude の実行に失敗しました（終了コード {res.returncode}）：{(res.stderr or '').strip()[-800:]}｜{(res.stdout or '').strip()[-800:]}")
-    out = res.stdout
     start, end = out.find("["), out.rfind("]")
     if start < 0 or end < 0:
         raise RuntimeError(f"Claude の出力からJSONを読み取れませんでした：{out[:300]}")
@@ -185,6 +226,7 @@ def main() -> int:
                     "has_photo": c.get("media_type") in ("IMAGE", "CAROUSEL_ALBUM", "VIDEO"),
                     "post_text": (p.get("text") or "")[:200],
                     "_post_permalink": p.get("permalink", ""),
+                    "_media_url": c.get("media_url") if c.get("media_type") == "IMAGE" else None,
                 }
             )
     if not pending:
@@ -194,7 +236,24 @@ def main() -> int:
     batch = pending[:MAX_CLASSIFY]
     print(f"新しいコメント {len(pending)}件のうち {len(batch)}件を処理します（今回の返信上限 {budget}件）")
     by_id = {c["id"]: c for c in batch}
-    decisions = ask_claude([{k: v for k, v in c.items() if not k.startswith("_")} for c in batch])
+    images: dict[str, tuple[str, str]] = {}
+    for c in batch:
+        if c.get("_media_url") and len(images) < MAX_IMAGES:
+            img = fetch_image(c["_media_url"])
+            if img:
+                images[c["id"]] = img
+    print(f"写真 {len(images)}枚を確認に使います")
+    decisions = ask_claude([{k: v for k, v in c.items() if not k.startswith("_")} for c in batch], images)
+    preview = os.environ.get("REPLY_TEST") == "preview"
+    if preview:
+        print("下見モード：実際のコメントで返信文を作りますが、投稿・記録はしません")
+        for d in decisions:
+            c = by_id.get(str(d.get("id")), {})
+            problem = validate_reply(d.get("text", "")) if d.get("action") == "reply" else None
+            print(f"- @{c.get('username')}「{c.get('comment', '')[:60]}」{'［写真あり］' if c.get('has_photo') else ''}\n"
+                  f"  → {d.get('action')}｜{d.get('text') or d.get('reason')}"
+                  + (f"（※ 投稿前チェックで見送り：{problem}）" if problem else ""))
+        return 0
 
     replied = 0
     stamp = lambda: datetime.now(JST).isoformat(timespec="seconds")  # noqa: E731
