@@ -3,7 +3,7 @@ name: コメントに自動返信
 on:
   schedule:
     # 5分おきに新しいコメントを確認し、あればすぐ返信する（24時間）
-    - cron: "2-57/5 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       mode:
