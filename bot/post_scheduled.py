@@ -5,7 +5,7 @@
 - 1回の実行で投稿するのは1案まで、1日3案まで
 - 時刻を90分過ぎた案は投稿せず「見送り」にする
 - 1投稿目にURLを入れない（リンクはツリー2投稿目へ）
-- Amazonリンクを含む案は、1投稿目に #PR が必須
+- Amazonリンクを含む案は、リンクの横に PR が必須
 - 下書きの穴埋め記号（{{ }}）が残っていたら投稿しない
 """
 
@@ -39,8 +39,6 @@ def validate(d: Draft) -> list[str]:
         errors.append("1投稿目にURLが入っています。リンクはツリー2投稿目に移してください")
     if "{{" in d.text or (d.reply and "{{" in d.reply):
         errors.append("穴埋め記号 {{ }} が残っています")
-    if d.reply and AMAZON_RE.search(d.reply) and "#PR" not in d.text:
-        errors.append("Amazonリンクを含む案ですが、1投稿目に #PR がありません")
     if d.reply and AMAZON_RE.search(d.reply) and "PR" not in d.reply:
         errors.append("Amazonリンクを含む案ですが、ツリー2投稿目のリンクの横に PR がありません")
     return errors
