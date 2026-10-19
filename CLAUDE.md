@@ -54,7 +54,7 @@ Threadsアカウント「わんにゃん暮らしの便利帖」（@wannyan_pick
 
 ## コメントへの自動返信
 
-Actions「コメントに自動返信」が**5分おきに**新しいコメントを確認し、あればすぐAI（Claude）で返信する（大喜利のボケを放置しないため。オーナーの希望で10分以内が目標）。ルールは `bot/reply_rules.md`（選手権へのコメントはお題につなげてツッコみ→ポジティブに締める）。
+Actions「コメントに自動返信」が**2分おきに**新しいコメントを確認し、あればすぐAI（Claude）で返信する（大喜利のボケを放置しないため。オーナーの希望で10分以内が目標）。ルールは `bot/reply_rules.md`（選手権へのコメントはお題につなげてツッコみ→ポジティブに締める）。
 「いいね」はThreads APIに機能がなく、ブラウザ自動操作は規約違反でアカウント停止の危険があるため自動化しない。
 リポジトリは公開（Actionsを無料で回すため）。トークンなど秘密の値はファイルやログに絶対に書かない。
 判断が必要なコメント（苦情・トラブル・商品の質問・個人的な相談・不適切な内容）は返信せず `data/escalations.json` に記録される。
@@ -168,7 +168,8 @@ Actions「コメントに自動返信」が**5分おきに**新しいコメン�
 - `bot/issue_format.py`：承認用Issueの本文を作る／読む
 - `bot/create_draft_issue.py`：下書きJSONから承認用Issueを作る（gh api / REST）
 - `bot/approve.py`：チャットでの承認・修正をIssueに反映する
-- `bot/post_scheduled.py`：承認済みの案を時刻に投稿（Actions「承認済みの投稿案を投稿」、7/12/21時）
+- `bot/loop.sh`：Actions「コメントに自動返信」の本体。1回の実行で約27分間、2分おきに「時刻になった投稿」と「新しいコメントへの返信」をくり返す（GitHubの定期実行は混雑で遅れる・飛ぶため）
+- `bot/post_scheduled.py`：承認済みの案を時刻に投稿（上の loop.sh から2分おき＋予備としてActions「承認済みの投稿案を投稿（予備）」）
 - `bot/collect_insights.py`：反応データを `data/insights.json` に保存（Actions「反応データを収集」、17:53）
-- `bot/auto_reply.py` ＋ `bot/reply_rules.md`：コメントへの自動返信（Actions「コメントに自動返信」、1日6回）
+- `bot/auto_reply.py` ＋ `bot/reply_rules.md`：コメントへの自動返信（loop.sh から2分おきに確認）
 - `bot/connection_test.py`：接続テスト（投稿しない）
