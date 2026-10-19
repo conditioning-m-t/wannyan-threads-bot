@@ -41,6 +41,8 @@ def validate(d: Draft) -> list[str]:
         errors.append("穴埋め記号 {{ }} が残っています")
     if d.reply and AMAZON_RE.search(d.reply) and "#PR" not in d.text:
         errors.append("Amazonリンクを含む案ですが、1投稿目に #PR がありません")
+    if d.reply and AMAZON_RE.search(d.reply) and "PR" not in d.reply:
+        errors.append("Amazonリンクを含む案ですが、ツリー2投稿目のリンクの横に PR がありません")
     return errors
 
 
