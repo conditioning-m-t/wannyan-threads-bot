@@ -104,7 +104,7 @@ def ask_claude(items: list[dict]) -> list[dict]:
             timeout=600,
         )
     if res.returncode != 0:
-        raise RuntimeError(f"Claude の実行に失敗しました：{res.stderr.strip()[:500]}")
+        raise RuntimeError(f"Claude の実行に失敗しました（終了コード {res.returncode}）：{(res.stderr or '').strip()[-800:]}｜{(res.stdout or '').strip()[-800:]}")
     out = res.stdout
     start, end = out.find("["), out.rfind("]")
     if start < 0 or end < 0:
@@ -240,5 +240,29 @@ def main() -> int:
     return 0
 
 
+LOG = ROOT / "data" / "reply_log.txt"
+SECRET_RE = re.compile(r"sk-ant-[A-Za-z0-9_\-]+|[A-Za-z0-9_\-]{60,}")
+
+
+def run_with_log() -> int:
+    """実行結果を data/reply_log.txt に残す（Actionsのログを見なくても状況が分かるように）。"""
+    import contextlib
+    import io
+    import traceback
+
+    buf = io.StringIO()
+    code = 1
+    with contextlib.redirect_stdout(buf):
+        try:
+            code = main()
+        except Exception:  # noqa: BLE001
+            traceback.print_exc(file=buf)
+    text = SECRET_RE.sub("***", buf.getvalue())
+    print(text)
+    LOG.parent.mkdir(exist_ok=True)
+    LOG.write_text(f"{datetime.now(JST):%Y-%m-%d %H:%M} 終了コード {code}\n{text}")
+    return code
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_with_log())
