@@ -62,13 +62,15 @@ def get_publishing_limit(user_id: str) -> dict:
     )
 
 
-def publish_text(user_id: str, text: str, reply_to_id: str | None = None) -> str:
+def publish_text(user_id: str, text: str, reply_to_id: str | None = None, topic_tag: str | None = None) -> str:
     """テキスト投稿（または返信）を公開し、投稿IDを返す。"""
     if len(text) > 500:
         raise ThreadsAPIError(f"500文字を超えています（{len(text)}文字）")
     params = {"media_type": "TEXT", "text": text}
     if reply_to_id:
         params["reply_to_id"] = reply_to_id
+    if topic_tag:
+        params["topic_tag"] = topic_tag
     container = _request("POST", f"{user_id}/threads", params)
     creation_id = container["id"]
 

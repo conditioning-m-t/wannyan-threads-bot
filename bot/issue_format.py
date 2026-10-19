@@ -28,6 +28,7 @@ LABEL = "投稿案"
 
 HEADER_RE = re.compile(r"<!-- wannyan-drafts date=(\d{4}-\d{2}-\d{2}) -->")
 CHECK_RE = re.compile(r"^- \[([ xX])\] (\d{2}:\d{2}) を承認する(.*)$", re.MULTILINE)
+TOPIC_RE = re.compile(r"<!-- topic (\d{2}:\d{2}) (.+?) -->")
 BLOCK_RE = re.compile(
     r"<!-- (post|reply) (\d{2}:\d{2}) -->\s*\n```text\n(.*?)\n```", re.DOTALL
 )
@@ -42,6 +43,7 @@ class Draft:
     status: str = ""  # "", "posted", "skipped", "error"
     kind: str = ""
     memo: str = ""
+    topic: str = ""  # Threadsのトピック（1投稿に1つ）
 
 
 @dataclass
@@ -74,6 +76,8 @@ def render(date_str: str, posts: list[dict], approved: bool = True) -> tuple[str
         if p.get("memo"):
             lines += [f"> 狙い：{p['memo']}", ""]
         lines += [f"- [{'x' if approved else ' '}] {p['slot']} を承認する", ""]
+        if p.get("topic"):
+            lines += [f"<!-- topic {p['slot']} {p['topic'].strip()} -->", f"トピック：{p['topic'].strip()}", ""]
         lines += [f"<!-- post {p['slot']} -->", "```text", p["text"].strip(), "```", ""]
         if p.get("reply"):
             lines += [
@@ -101,6 +105,9 @@ def parse(body: str) -> DraftIssue | None:
             d.text = text.strip()
         else:
             d.reply = text.strip() or None
+    for slot, topic in TOPIC_RE.findall(body):
+        if slot in by_slot:
+            by_slot[slot].topic = topic.strip()
     for mark, slot, rest in CHECK_RE.findall(body):
         if slot not in by_slot:
             continue

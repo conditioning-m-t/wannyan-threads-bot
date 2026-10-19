@@ -72,6 +72,15 @@ def sync(body: str, posts: list[dict]) -> str:
                 count=1,
                 flags=re.DOTALL,
             )
+        body = re.sub(rf"<!-- topic {s} .+? -->\nトピック：.*\n\n", "", body, count=1)
+        if p.get("topic"):
+            body = re.sub(
+                rf"(^- \[[ xX]\] {s} を承認する.*\n\n)",
+                lambda m: m.group(1) + f"<!-- topic {slot} {p['topic'].strip()} -->\nトピック：{p['topic'].strip()}\n\n",
+                body,
+                count=1,
+                flags=re.MULTILINE,
+            )
         print(f"{slot}：本文を更新しました")
     return body
 

@@ -25,6 +25,8 @@ WINDOW = timedelta(minutes=90)
 MAX_PER_DAY = 3
 DRY_RUN = os.environ.get("DRY_RUN") == "1"
 
+# トピックを付けた投稿のほうが伸びやすい（Meta）。案にトピックがない時の既定値
+DEFAULT_TOPIC = "ペットのいる暮らし"
 URL_RE = re.compile(r"https?://|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
 AMAZON_RE = re.compile(r"amazon\.co\.jp|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
 
@@ -39,6 +41,8 @@ def validate(d: Draft) -> list[str]:
         errors.append("1投稿目にURLが入っています。リンクはツリー2投稿目に移してください")
     if "{{" in d.text or (d.reply and "{{" in d.reply):
         errors.append("穴埋め記号 {{ }} が残っています")
+    if d.topic and (len(d.topic) > 50 or "." in d.topic or "&" in d.topic):
+        errors.append("トピックは50文字以内で、「.」「&」は使えません")
     if d.reply and AMAZON_RE.search(d.reply) and "PR" not in d.reply:
         errors.append("Amazonリンクを含む案ですが、ツリー2投稿目のリンクの横に PR がありません")
     return errors
@@ -48,7 +52,7 @@ def publish(d: Draft) -> str:
     from threads_api import get_me, get_permalink, publish_text
 
     user_id = get_me()["id"]
-    main_id = publish_text(user_id, d.text)
+    main_id = publish_text(user_id, d.text, topic_tag=d.topic or DEFAULT_TOPIC)
     if d.reply:
         time.sleep(5)
         publish_text(user_id, d.reply, reply_to_id=main_id)
