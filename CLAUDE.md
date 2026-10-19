@@ -20,8 +20,33 @@ Threadsアカウント「わんにゃん暮らしの便利帖」（@wannyan_pick
 6. `python bot/create_draft_issue.py drafts/YYYY-MM-DD.json` を実行して承認用Issueを作る
    - 問題が出たら案を直して再実行する
 7. 下書きファイルをコミットして push する
+8. **チャットに3案の本文を全文で表示し、承認をお願いする**（下記「チャットでの承認」）
 
 **Threadsへ直接投稿しない。** 投稿は承認後に GitHub Actions が行う。シークレットには触れない。
+
+## チャットでの承認（オーナーはGitHubアプリを使わない）
+
+オーナーはこのClaudeとのやり取りだけで承認・修正する。GitHubの操作をお願いしない。
+
+- 案を見せるときは、時刻ごとに本文（とツリー2投稿目）を全文で表示し、最後に
+  「承認する案を教えてください（例：全部OK／1と3だけ／2の◯◯を変えて）。7時の案は8時半までに承認がないと見送りになります」と添える
+- 返信を受けたら次のコマンドで反映し、結果を短く報告する
+  - 承認：`python bot/approve.py YYYY-MM-DD --approve 07:00 21:00`（全部なら `--approve all`）
+  - 取り消し：`python bot/approve.py YYYY-MM-DD --unapprove 12:00`
+  - 本文の修正：`drafts/YYYY-MM-DD.json` を直してから
+    `python bot/approve.py YYYY-MM-DD --sync drafts/YYYY-MM-DD.json --approve ...`（修正後の下書きはコミットしてpush）
+  - 状態確認：`python bot/approve.py YYYY-MM-DD --show`
+- 修正を頼まれたら、直した本文を見せてから承認する（「この内容で承認しました」と全文を添える）
+
+## 商品リンクの登録
+
+オーナーがチャットにAmazonアソシエイトのリンク（link.amazon/… など）と商品名を貼ったら：
+
+1. 商品ページの内容や第三者の検証記事をWeb検索で確認し、出典つきの事実だけを `facts` に、弱点や注意点を `cautions` に書く
+2. `products.json` に追加してコミット・push する
+3. 登録した内容（商品名・リンク・使える事実）を短く報告する
+
+リンクが商品名と一致しているか確認できない場合は、オーナーに確認する。
 
 ## 1日の構成（3枠）
 
@@ -77,7 +102,8 @@ Threadsアカウント「わんにゃん暮らしの便利帖」（@wannyan_pick
 ## 仕組みの構成
 
 - `bot/issue_format.py`：承認用Issueの本文を作る／読む
-- `bot/create_draft_issue.py`：下書きJSONから承認用Issueを作る（gh CLI）
+- `bot/create_draft_issue.py`：下書きJSONから承認用Issueを作る（gh api / REST）
+- `bot/approve.py`：チャットでの承認・修正をIssueに反映する
 - `bot/post_scheduled.py`：承認済みの案を時刻に投稿（Actions「承認済みの投稿案を投稿」、7/12/21時）
 - `bot/collect_insights.py`：反応データを `data/insights.json` に保存（Actions「反応データを収集」、19:13）
 - `bot/connection_test.py`：接続テスト（投稿しない）
