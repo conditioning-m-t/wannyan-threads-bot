@@ -50,19 +50,21 @@ class DraftIssue:
     drafts: list[Draft] = field(default_factory=list)
 
 
-def render(date_str: str, posts: list[dict]) -> tuple[str, str]:
-    """drafts JSON から (タイトル, 本文) を作る。"""
+def render(date_str: str, posts: list[dict], approved: bool = True) -> tuple[str, str]:
+    """drafts JSON から (タイトル, 本文) を作る。
+
+    運用は「止めたい時だけ言う」方式なので、既定では承認済み（チェック済み）で作る。
+    """
     d = date.fromisoformat(date_str)
     title = f"【投稿案】{d.month}/{d.day}（{WEEKDAYS[d.weekday()]}）"
     lines = [
         f"<!-- wannyan-drafts date={date_str} -->",
         f"**{d.month}月{d.day}日（{WEEKDAYS[d.weekday()]}）の投稿案です。**",
         "",
-        "投稿したい案の「承認する」にチェックを入れてください。チェックが入った案だけが、その時刻に自動で投稿されます。",
+        "チェックが入っている案は、その時刻に自動で投稿されます。止めたい案はチェックを外してください（ふだんはClaudeとのチャットで「2番やめて」と伝えればOK）。",
         "",
         "- 本文はこの画面の編集（右上の「…」→ Edit）で直接書き換えてOKです",
         "- `<!-- -->` の行と ```text の行は消さないでください",
-        "- 時刻を過ぎてから90分以内にチェックがなければ、その案は見送りになります",
         "",
     ]
     for i, p in enumerate(posts):
@@ -71,7 +73,7 @@ def render(date_str: str, posts: list[dict]) -> tuple[str, str]:
         lines += ["---", f"### {num} {p['slot']}｜{kind}".rstrip("｜"), ""]
         if p.get("memo"):
             lines += [f"> 狙い：{p['memo']}", ""]
-        lines += [f"- [ ] {p['slot']} を承認する", ""]
+        lines += [f"- [{'x' if approved else ' '}] {p['slot']} を承認する", ""]
         lines += [f"<!-- post {p['slot']} -->", "```text", p["text"].strip(), "```", ""]
         if p.get("reply"):
             lines += [
