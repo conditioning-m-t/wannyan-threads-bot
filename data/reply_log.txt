@@ -1,0 +1,15 @@
+2026-10-19 21:30 終了コード 1
+テスト実行：投稿・記録はしません
+Traceback (most recent call last):
+  File "/home/runner/work/wannyan-threads-bot/wannyan-threads-bot/bot/auto_reply.py", line 257, in run_with_log
+    code = main()
+           ^^^^^^
+  File "/home/runner/work/wannyan-threads-bot/wannyan-threads-bot/bot/auto_reply.py", line 140, in main
+    return test_mode()
+           ^^^^^^^^^^^
+  File "/home/runner/work/wannyan-threads-bot/wannyan-threads-bot/bot/auto_reply.py", line 128, in test_mode
+    for d in ask_claude(SAMPLE_COMMENTS):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/wannyan-threads-bot/wannyan-threads-bot/bot/auto_reply.py", line 107, in ask_claude
+    raise RuntimeError(f"Claude の実行に失敗しました（終了コード {res.returncode}）：{(res.stderr or '').strip()[-800:]}｜{(res.stdout or '').strip()[-800:]}")
+RuntimeError: Claude の実行に失敗しました（終了コード 1）：｜Invalid auth token · Fix external auth token · Invalid Authorization header value from CLAUDE_CODE_OAUTH_TOKEN: it contains a line break at character 80 (110 characters on 2 lines).
