@@ -1,0 +1,36 @@
+name: 反応データを収集
+
+on:
+  schedule:
+    # 日本時間 19:13（下書き作成の前）
+    - cron: "13 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: insights
+  cancel-in-progress: true
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 反応データを取得
+        working-directory: bot
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+        run: python collect_insights.py
+      - name: 保存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/insights.json
+          git diff --cached --quiet || git commit -m "反応データを更新"
+          git push

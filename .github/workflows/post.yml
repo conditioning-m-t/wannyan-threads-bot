@@ -1,0 +1,46 @@
+name: 承認済みの投稿案を投稿
+
+on:
+  schedule:
+    # 日本時間 7:03 / 7:33（UTC 22時台）
+    - cron: "3,33 22 * * *"
+    # 日本時間 12:03 / 12:33（UTC 3時台）
+    - cron: "3,33 3 * * *"
+    # 日本時間 21:03 / 21:33（UTC 12時台）
+    - cron: "3,33 12 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "テスト実行（実際には投稿しない）"
+        type: boolean
+        default: true
+      now_jst:
+        description: "テスト用の時刻（例 2026-10-20T07:05）。空欄なら今の時刻"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 投稿
+        working-directory: bot
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
+          NOW_JST: ${{ inputs.now_jst }}
+        run: python post_scheduled.py

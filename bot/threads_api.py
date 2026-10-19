@@ -85,6 +85,32 @@ def publish_text(user_id: str, text: str, reply_to_id: str | None = None) -> str
     return published["id"]
 
 
+def get_permalink(media_id: str) -> str:
+    return _request("GET", media_id, {"fields": "permalink"}).get("permalink", "")
+
+
+def list_my_threads(limit: int = 25) -> list[dict]:
+    res = _request(
+        "GET",
+        "me/threads",
+        {"fields": "id,text,timestamp,permalink,media_type", "limit": str(limit)},
+    )
+    return res.get("data", [])
+
+
+def get_media_insights(media_id: str) -> dict:
+    res = _request(
+        "GET",
+        f"{media_id}/insights",
+        {"metric": "views,likes,replies,reposts,quotes"},
+    )
+    out = {}
+    for item in res.get("data", []):
+        values = item.get("values") or [{}]
+        out[item["name"]] = values[0].get("value", 0)
+    return out
+
+
 def get_replies(media_id: str) -> list[dict]:
     res = _request(
         "GET",
