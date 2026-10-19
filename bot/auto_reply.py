@@ -86,6 +86,9 @@ def ask_claude(items: list[dict]) -> list[dict]:
     )
     # Threads・GitHub のトークンは渡さない
     env = {k: v for k, v in os.environ.items() if k not in ("THREADS_ACCESS_TOKEN", "GITHUB_TOKEN")}
+    # ターミナルからコピーすると途中に改行が入ることがあるので、空白・改行を取り除く
+    if env.get("CLAUDE_CODE_OAUTH_TOKEN"):
+        env["CLAUDE_CODE_OAUTH_TOKEN"] = "".join(env["CLAUDE_CODE_OAUTH_TOKEN"].split())
     with tempfile.TemporaryDirectory() as tmp:
         res = subprocess.run(
             [
