@@ -2,8 +2,8 @@ name: 反応データを収集
 
 on:
   schedule:
-    # 日本時間 19:13（下書き作成の前）
-    - cron: "13 10 * * *"
+    # 日本時間 17:53（下書き作成の前）
+    - cron: "53 8 * * *"
   workflow_dispatch:
 
 permissions:

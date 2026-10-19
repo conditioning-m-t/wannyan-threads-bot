@@ -157,6 +157,6 @@ Actions「コメントに自動返信」が**5分おきに**新しいコメン�
 - `bot/create_draft_issue.py`：下書きJSONから承認用Issueを作る（gh api / REST）
 - `bot/approve.py`：チャットでの承認・修正をIssueに反映する
 - `bot/post_scheduled.py`：承認済みの案を時刻に投稿（Actions「承認済みの投稿案を投稿」、7/12/21時）
-- `bot/collect_insights.py`：反応データを `data/insights.json` に保存（Actions「反応データを収集」、19:13）
+- `bot/collect_insights.py`：反応データを `data/insights.json` に保存（Actions「反応データを収集」、17:53）
 - `bot/auto_reply.py` ＋ `bot/reply_rules.md`：コメントへの自動返信（Actions「コメントに自動返信」、1日6回）
 - `bot/connection_test.py`：接続テスト（投稿しない）
