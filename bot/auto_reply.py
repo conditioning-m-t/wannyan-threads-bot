@@ -61,7 +61,7 @@ def get_comments(media_id: str) -> list[dict]:
     res = _request(
         "GET",
         f"{media_id}/replies",
-        {"fields": "id,text,username,timestamp,media_type,media_url,is_reply_owned_by_me"},
+        {"fields": "id,text,username,timestamp,media_type,media_url,thumbnail_url,is_reply_owned_by_me"},
     )
     return res.get("data", [])
 
@@ -85,6 +85,28 @@ def fetch_image(url: str) -> tuple[str, str] | None:
     if len(data) > MAX_IMAGE_BYTES or ctype not in ("image/jpeg", "image/png", "image/webp", "image/gif"):
         return None
     return ctype, base64.b64encode(data).decode()
+
+
+def photo_url(c: dict) -> str | None:
+    """コメントの写真URL。複数枚の場合は1枚目の写真を使う。"""
+    if c.get("media_type") == "IMAGE":
+        return c.get("media_url")
+    if c.get("media_type") == "CAROUSEL_ALBUM":
+        try:
+            res = _request("GET", c["id"], {"fields": "children{media_type,media_url,thumbnail_url}"})
+        except ThreadsAPIError:
+            return None
+        for ch in (res.get("children") or {}).get("data", []):
+            if ch.get("media_type") == "IMAGE" and ch.get("media_url"):
+                return ch["media_url"]
+            if ch.get("thumbnail_url"):
+                return ch["thumbnail_url"]
+    if c.get("media_type") == "VIDEO":
+        try:
+            return _request("GET", c["id"], {"fields": "thumbnail_url"}).get("thumbnail_url")
+        except ThreadsAPIError:
+            return None
+    return None
 
 
 def validate_reply(text: str) -> str | None:
@@ -226,7 +248,7 @@ def main() -> int:
                     "has_photo": c.get("media_type") in ("IMAGE", "CAROUSEL_ALBUM", "VIDEO"),
                     "post_text": (p.get("text") or "")[:200],
                     "_post_permalink": p.get("permalink", ""),
-                    "_media_url": c.get("media_url") if c.get("media_type") == "IMAGE" else None,
+                    "_media_url": photo_url(c),
                 }
             )
     if not pending:
@@ -250,7 +272,7 @@ def main() -> int:
         for d in decisions:
             c = by_id.get(str(d.get("id")), {})
             problem = validate_reply(d.get("text", "")) if d.get("action") == "reply" else None
-            print(f"- @{c.get('username')}「{c.get('comment', '')[:60]}」{'［写真あり］' if c.get('has_photo') else ''}\n"
+            print(f"- @{c.get('username')}「{c.get('comment', '')[:60]}」{'［写真あり］' if c.get('has_photo') else ''}{'（写真を確認済み）' if c['id'] in images else ''}\n"
                   f"  → {d.get('action')}｜{d.get('text') or d.get('reason')}"
                   + (f"（※ 投稿前チェックで見送り：{problem}）" if problem else ""))
         return 0
