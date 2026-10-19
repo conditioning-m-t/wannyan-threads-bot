@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import tempfile
+from urllib.parse import quote
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -19,8 +19,28 @@ from post_scheduled import validate  # noqa: E402
 SLOTS = {"07:00", "12:00", "21:00"}
 
 
-def gh(*args: str) -> str:
-    return subprocess.run(["gh", *args], check=True, capture_output=True, text=True).stdout
+def repo_slug() -> str:
+    url = subprocess.run(
+        ["git", "remote", "get-url", "origin"], check=True, capture_output=True, text=True,
+        cwd=Path(__file__).resolve().parent,
+    ).stdout.strip()
+    slug = url.split("github.com")[-1].lstrip(":/").removesuffix(".git")
+    return "/".join(slug.split("/")[-2:])
+
+
+def gh_api(path: str, method: str = "GET", payload: dict | None = None, ok_codes=()) -> object:
+    """gh api（REST）を呼ぶ。Claude Code の環境では GraphQL が使えないため REST のみ使う。"""
+    cmd = ["gh", "api", "-X", method, f"repos/{repo_slug()}/{path}"]
+    stdin = None
+    if payload is not None:
+        cmd += ["--input", "-"]
+        stdin = json.dumps(payload)
+    res = subprocess.run(cmd, input=stdin, capture_output=True, text=True)
+    if res.returncode != 0:
+        if any(str(c) in res.stdout + res.stderr for c in ok_codes):
+            return None
+        raise RuntimeError(f"gh api {method} {path} に失敗：{res.stderr.strip() or res.stdout.strip()}")
+    return json.loads(res.stdout) if res.stdout.strip() else None
 
 
 def main(path: str) -> int:
@@ -40,17 +60,20 @@ def main(path: str) -> int:
         print("\n".join(f"- {x}" for x in problems))
         return 1
 
-    existing = json.loads(gh("issue", "list", "--label", LABEL, "--state", "open", "--json", "number,body"))
+    existing = gh_api(f"issues?state=open&labels={quote(LABEL)}&per_page=50") or []
     if any(f"date={date_str}" in (i.get("body") or "") for i in existing):
         print(f"{date_str} の投稿案はすでにあります。重複して作りません。")
         return 0
 
-    gh("label", "create", LABEL, "--color", "F9A825", "--description", "承認待ちの投稿案", "--force")
+    gh_api(
+        "labels",
+        "POST",
+        {"name": LABEL, "color": "F9A825", "description": "承認待ちの投稿案"},
+        ok_codes=(422, "already_exists"),
+    )
     title, body = render(date_str, posts)
-    with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
-        f.write(body)
-    url = gh("issue", "create", "--title", title, "--label", LABEL, "--body-file", f.name).strip()
-    print(f"投稿案を作成しました：{url}")
+    issue = gh_api("issues", "POST", {"title": title, "body": body, "labels": [LABEL]})
+    print(f"投稿案を作成しました：{issue['html_url']}")
     return 0
 
 
