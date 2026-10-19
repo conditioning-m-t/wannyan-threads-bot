@@ -1,4 +1,4 @@
-name: 承認済みの投稿案を投稿
+name: 承認済みの投稿案を投稿（予備）
 
 on:
   schedule:
@@ -23,14 +23,14 @@ permissions:
   contents: read
   issues: write
 
-concurrency:
-  group: post
-  cancel-in-progress: false
-
 jobs:
   post:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # 「コメントに自動返信」の中でも投稿するので、同時に動かないようにする（二重投稿防止）
+    concurrency:
+      group: bot-loop
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
