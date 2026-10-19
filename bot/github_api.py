@@ -26,7 +26,12 @@ def open_issues(label: str) -> list[dict]:
     from urllib.parse import quote
 
     issues = _req("GET", f"issues?state=open&labels={quote(label)}&per_page=50") or []
-    return [i for i in issues if "pull_request" not in i]
+    # 公開リポジトリなので、オーナーが作った投稿案だけを扱う（他人が作ったIssueは無視）
+    owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "")
+    return [
+        i for i in issues
+        if "pull_request" not in i and (not owner or (i.get("user") or {}).get("login") == owner)
+    ]
 
 
 def update_body(number: int, body: str) -> None:

@@ -29,10 +29,18 @@ STATE = ROOT / "data" / "replied.json"
 ESCALATIONS = ROOT / "data" / "escalations.json"
 RULES = Path(__file__).resolve().parent / "reply_rules.md"
 
-MAX_PER_DAY = 50
+MAX_PER_DAY = 200  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう余裕を持たせる
 MAX_PER_RUN = 15
 MAX_CLASSIFY = 30
 LOOKBACK = timedelta(hours=72)
+
+# 記録（公開リポジトリ）に残す前に、メールアドレス・電話番号を伏せる
+CONTACT_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+|0\d{1,4}[-ー\s]?\d{1,4}[-ー\s]?\d{3,4}")
+
+
+def mask_contact(text: str) -> str:
+    return CONTACT_RE.sub("［連絡先を伏せました］", text or "")
+
 
 BAD_REPLY_RE = re.compile(
     r"https?://|www\.|#|amazon|amzn|link\.|[A-Za-z0-9_\-]{25,}|うちの(子|猫|犬|わんこ|にゃんこ)",
@@ -200,28 +208,8 @@ def test_mode() -> int:
     return 0
 
 
-def main() -> int:
-    if not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN") and not os.environ.get("ANTHROPIC_API_KEY"):
-        print("CLAUDE_CODE_OAUTH_TOKEN が未設定のため、自動返信は休止中です")
-        return 0
-    if os.environ.get("REPLY_TEST") == "1":
-        return test_mode()
-
-    now = datetime.now(JST)
-    today = now.date().isoformat()
-    state = load(STATE, {"comments": {}})
-    escalations = load(ESCALATIONS, {"items": []})
-    done = state["comments"]
-
-    replied_today = sum(
-        1 for v in done.values() if v.get("action") == "reply" and v.get("at", "").startswith(today)
-    )
-    budget = min(MAX_PER_RUN, MAX_PER_DAY - replied_today)
-    if budget <= 0:
-        print(f"今日の返信は上限（{MAX_PER_DAY}件）に達しています")
-        return 0
-
-    me = get_me()
+def scan(now: datetime, me: dict, done: dict) -> list[dict]:
+    """直近の投稿についた、まだ対応していないコメントを集める。"""
     posts = [
         p for p in list_my_threads(limit=15)
         if p.get("timestamp") and now - parse_ts(p["timestamp"]) <= LOOKBACK
@@ -248,12 +236,49 @@ def main() -> int:
                     "has_photo": c.get("media_type") in ("IMAGE", "CAROUSEL_ALBUM", "VIDEO"),
                     "post_text": (p.get("text") or "")[:200],
                     "_post_permalink": p.get("permalink", ""),
-                    "_media_url": photo_url(c),
+                    "_raw": c,
                 }
             )
+    return pending
+
+
+def main() -> int:
+    check_only = os.environ.get("REPLY_CHECK") == "1"
+    if not check_only and not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN") and not os.environ.get("ANTHROPIC_API_KEY"):
+        print("CLAUDE_CODE_OAUTH_TOKEN が未設定のため、自動返信は休止中です")
+        return 0
+    if os.environ.get("REPLY_TEST") == "1":
+        return test_mode()
+
+    now = datetime.now(JST)
+    today = now.date().isoformat()
+    state = load(STATE, {"comments": {}})
+    escalations = load(ESCALATIONS, {"items": []})
+    done = state["comments"]
+
+    replied_today = sum(
+        1 for v in done.values() if v.get("action") == "reply" and v.get("at", "").startswith(today)
+    )
+    budget = min(MAX_PER_RUN, MAX_PER_DAY - replied_today)
+    if budget <= 0:
+        print(f"今日の返信は上限（{MAX_PER_DAY}件）に達しています")
+        return 0
+
+    me = get_me()
+    pending = scan(now, me, done)
+    if check_only:
+        # 確認だけ（Claudeは呼ばない）。新しいコメントの件数を Actions に伝える
+        out = os.environ.get("GITHUB_OUTPUT")
+        if out:
+            with open(out, "a") as f:
+                f.write(f"pending={len(pending)}\n")
+        print(f"新しいコメント {len(pending)}件")
+        return 0
     if not pending:
         print("新しいコメントはありません")
         return 0
+    for c in pending[:MAX_CLASSIFY]:
+        c["_media_url"] = photo_url(c["_raw"])
 
     batch = pending[:MAX_CLASSIFY]
     print(f"新しいコメント {len(pending)}件のうち {len(batch)}件を処理します（今回の返信上限 {budget}件）")
@@ -308,7 +333,7 @@ def main() -> int:
                 {
                     "comment_id": c["id"],
                     "username": c["username"],
-                    "comment": c["comment"],
+                    "comment": mask_contact(c["comment"]),
                     "post_text": c["post_text"],
                     "post_permalink": c["_post_permalink"],
                     "reason": d.get("reason", ""),
@@ -343,7 +368,7 @@ def run_with_log() -> int:
             code = main()
         except Exception:  # noqa: BLE001
             traceback.print_exc(file=buf)
-    text = SECRET_RE.sub("***", buf.getvalue())
+    text = mask_contact(SECRET_RE.sub("***", buf.getvalue()))
     print(text)
     LOG.parent.mkdir(exist_ok=True)
     LOG.write_text(f"{datetime.now(JST):%Y-%m-%d %H:%M} 終了コード {code}\n{text}")
@@ -351,4 +376,6 @@ def run_with_log() -> int:
 
 
 if __name__ == "__main__":
+    if os.environ.get("REPLY_CHECK") == "1":
+        sys.exit(main())
     sys.exit(run_with_log())
