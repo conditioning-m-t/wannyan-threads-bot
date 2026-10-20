@@ -373,7 +373,8 @@ def main() -> int:
                 continue
             done[c["id"]] = {"action": "reply", "reply_id": reply_id, "at": stamp()}
             replied += 1
-            print(f"返信：@{c['username']} ← {d['text'].strip()}")
+            tag = "（返信の返信）" if c.get("reply_to_our_reply") else ""
+            print(f"返信{tag}：@{c['username']}「{c['comment'][:40]}」 ← {d['text'].strip()}")
         elif action == "escalate":
             done[c["id"]] = {"action": "escalate", "at": stamp()}
             escalations["items"].append(
