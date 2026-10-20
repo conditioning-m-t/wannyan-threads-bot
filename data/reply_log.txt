@@ -1,5 +1,5 @@
-2026-10-21 00:15 終了コード 0
+2026-10-21 00:17 終了コード 0
 新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
 写真 0枚を確認に使います
-返信に失敗：@fuuchans：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"Aoiw2K6uoQFAr7EuL3l7VuC"}}
-返信 0件（今日の合計 0件）
+返信（返信の返信）：@fuuchans「いや〜本当に飴細工仕様ミジンコハートなんですよ▓なんたってハエみて怖がるんです▓」 ← ハエにビビるイケワン、ギャップが反則級です笑 まだ駆け出しの弱小アカウントですが、フォローしてもらえたら火・金21時の選手権でまた会えます！繊細な長男くん、愛おしすぎます🐾
+返信 1件（今日の合計 1件）
