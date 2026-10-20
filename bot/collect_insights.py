@@ -10,13 +10,33 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from threads_api import ThreadsAPIError, get_media_insights, list_my_threads
+from threads_api import ThreadsAPIError, _request, get_media_insights, list_my_threads
 
 JST = timezone(timedelta(hours=9))
 OUT = Path(__file__).resolve().parent.parent / "data" / "insights.json"
+FOLLOWERS = Path(__file__).resolve().parent.parent / "data" / "followers.json"
+
+
+def record_followers() -> None:
+    """フォロワー数を1日1回記録する（週次レポートでフォロワーの増え方を見るため）。"""
+    try:
+        res = _request("GET", "me/threads_insights", {"metric": "followers_count"})
+        count = res["data"][0]["total_value"]["value"]
+    except (ThreadsAPIError, KeyError, IndexError) as e:
+        print(f"フォロワー数を取れませんでした：{e}")
+        return
+    try:
+        history = json.loads(FOLLOWERS.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+    today = datetime.now(JST).date().isoformat()
+    history = [h for h in history if h.get("date") != today] + [{"date": today, "followers": count}]
+    FOLLOWERS.write_text(json.dumps(history, ensure_ascii=False, indent=2) + "\n")
+    print(f"フォロワー数：{count}人")
 
 
 def main() -> int:
+    record_followers()
     posts = []
     for t in list_my_threads(limit=40):
         if t.get("media_type") == "REPOST_FACADE":
