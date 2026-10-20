@@ -1,0 +1,62 @@
+name: 新アカウント：接続テスト
+
+# アカウントの設定を追加・変更したり、connection_request.txt を更新したりすると自動で動く（オーナーがボタンを押さなくてよいように）
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "accounts/*/account.json"
+      - "accounts/*/connection_request.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  accounts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+      count: ${{ steps.list.outputs.count }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: list
+        run: |
+          m=$(python3 bot/account.py new all)
+          echo "matrix=$m" >> "$GITHUB_OUTPUT"
+          echo "count=$(python3 -c "import json,sys;print(len(json.loads(sys.argv[1])[\"include\"]))" "$m")" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: accounts
+    if: needs.accounts.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.accounts.outputs.matrix) }}
+    env:
+      ACCOUNT: ${{ matrix.account }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Threads APIへの接続を確認（投稿はしません）
+        working-directory: bot
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets[matrix.secret] }}
+        run: python connection_test.py | tee "../accounts/$ACCOUNT/data/connection.txt" || true
+      - name: 結果を保存（Actionsのログを見なくても分かるように）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          f="accounts/$ACCOUNT/data/connection.txt"
+          sed -i "1i $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M') の接続テスト" "$f"
+          git add "$f"
+          git commit -m "接続テストの結果（$ACCOUNT）"
+          for i in 1 2 3 4; do
+            git pull --rebase origin main && git push && break
+            sleep $((i * 5))
+          done

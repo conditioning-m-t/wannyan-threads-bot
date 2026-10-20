@@ -1,0 +1,55 @@
+name: 新アカウント：投稿とコメント返信
+
+# accounts/ にある新しいアカウント（enabled: true）ごとに並列で動く。ペットは「コメントに自動返信」で別に動く
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  accounts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+      count: ${{ steps.list.outputs.count }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: list
+        run: |
+          m=$(python3 bot/account.py new )
+          echo "matrix=$m" >> "$GITHUB_OUTPUT"
+          echo "count=$(python3 -c "import json,sys;print(len(json.loads(sys.argv[1])[\"include\"]))" "$m")" >> "$GITHUB_OUTPUT"
+
+  bot:
+    needs: accounts
+    if: needs.accounts.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.accounts.outputs.matrix) }}
+    # 同じアカウントの実行が重ならないようにする（二重投稿防止）
+    concurrency:
+      group: bot-loop-${{ matrix.account }}
+      cancel-in-progress: false
+    env:
+      ACCOUNT: ${{ matrix.account }}
+      THREADS_ACCESS_TOKEN: ${{ secrets[matrix.secret] }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: git の設定
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: 投稿と返信をくり返す
+        run: bash bot/loop.sh
