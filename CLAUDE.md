@@ -42,12 +42,15 @@
 4. `accounts/<名前>/drafts/` の過去の案を見て、同じ切り口が続かないようにする
 5. 翌日の季節・天気・行事・そのジャンルの話題をWeb検索で軽く調べる
 6. 翌日分の `accounts/<名前>/drafts/YYYY-MM-DD.json` を作る（形式は下記）
-7. `ACCOUNT=<名前> python bot/create_draft_issue.py accounts/<名前>/drafts/YYYY-MM-DD.json` で承認用Issueを作る。問題が出たら案を直して再実行する
-8. 下書きファイルをコミットして push する
-9. 報告する（`account.json` の `report` による）
+7. `python bot/check_drafts.py YYYY-MM-DD <名前> --summary` で自動チェックする。❌は必ず直す。⚠️（似すぎ・絵文字の数など）も原則直す
+8. `ACCOUNT=<名前> python bot/create_draft_issue.py accounts/<名前>/drafts/YYYY-MM-DD.json` で承認用Issueを作る。問題が出たら案を直して再実行する
+9. 下書きファイルをコミットして push する
+10. 報告する（`account.json` の `report` による）
    - `full`：3案の本文を時刻ごとに全文で表示する（下記「止めたい時だけ言う方式」）
-   - `summary`：アカウントごとに1〜2行（時刻・種類・狙い）だけ。自動チェックで気になる点があった案だけ全文で見せる
-10. `accounts/<名前>/data/escalations.json` に未報告のコメントがあれば要約して報告する（下記「コメントへの自動返信」）
+   - `summary`：`check_drafts.py --summary` の結果をもとに、アカウントごとに時刻・種類・狙いを1行ずつ。自動チェックで⚠️が残った案だけ全文で見せる
+11. `accounts/<名前>/data/escalations.json` に未報告のコメントがあれば要約して報告する（下記「コメントへの自動返信」）
+12. `accounts/<名前>/data/token_status.json` を見て、合鍵の更新に失敗している（`ok: false`）か、期限（`expires_at`）や
+    書き換え用の合鍵の期限（`writer_expires`）が14日以内なら、オーナーに知らせる
 
 週次レポートや関門の判定など、アカウントごとの追加作業は `rules.md` に書いてある。
 
@@ -133,6 +136,12 @@ Actions「コメントに自動返信」がアカウントごとに**2分おき�
 
 `slot` は `account.json` の `slots` のどれか（ペットは `07:00` / `12:00` / `21:00`）。
 
+## 新しいアカウントの立ち上げ
+
+オーナーが「〇〇ジャンルで立ち上げて」と言ったら、スキル `launch-account`（`.claude/skills/launch-account/SKILL.md`）の手順で進める。
+一式は `python bot/new_account.py` で停止中のまま作り、オーナーの登録（アカウント作成・テスター追加・合鍵の登録・Amazonの登録サイト追加）が
+終わって接続テストに合格してから稼働中にする。
+
 ## 仕組みの構成
 
 - `bot/account.py`：アカウントの設定とファイルの置き場所（環境変数 `ACCOUNT` で選ぶ）
@@ -143,6 +152,10 @@ Actions「コメントに自動返信」がアカウントごとに**2分おき�
 - `bot/post_scheduled.py`：承認済みの案を時刻に投稿（loop.sh から2分おき＋予備としてActions「承認済みの投稿案を投稿（予備）」）。合鍵のアカウント名が設定と違えば投稿しない
 - `bot/collect_insights.py`：反応データとフォロワー数を `accounts/<名前>/data/` に保存（Actions「反応データを収集」、17:53）
 - `bot/auto_reply.py`：コメントへの自動返信（loop.sh から2分おきに確認）
+- `bot/check_drafts.py`：投稿案の自動チェック（形式・商品リンク・過去の案やほかのアカウントとの似すぎ）
+- `bot/new_account.py` ＋ `templates/account/`：新しいアカウントの一式を作る
+- `bot/refresh_token.py`：合鍵の自動更新（Actions「合鍵を自動更新」、毎週月曜4:17）。延長した合鍵を、オーナーが一度だけ登録した
+  書き換え用の合鍵（`SECRETS_WRITER_TOKEN`）でシークレットに書き戻す。結果（期限の日付だけ）は `accounts/<名前>/data/token_status.json`
 - `bot/connection_test.py`：接続テスト（投稿しない）。`accounts/*/account.json` を更新して push すると自動で動き、結果が `accounts/<名前>/data/connection.txt` に残る（Actionsのログは読めないため）
 
 自動実行は `accounts/*/account.json` の `enabled: true` のアカウントごとに並列で動く。
