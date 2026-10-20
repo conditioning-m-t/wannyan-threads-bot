@@ -65,13 +65,38 @@ def parse_ts(ts: str) -> datetime:
     return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S%z")
 
 
+COMMENT_FIELDS = (
+    "id,text,username,timestamp,media_type,media_url,thumbnail_url,"
+    "is_reply_owned_by_me,replied_to,root_post"
+)
+MAX_PAGES = 10
+MAX_TURNS = 3  # 1つの投稿で、同じ人との返信の返信は3往復まで（終わらないやり取りを防ぐ）
+
+
 def get_comments(media_id: str) -> list[dict]:
-    res = _request(
-        "GET",
-        f"{media_id}/replies",
-        {"fields": "id,text,username,timestamp,media_type,media_url,thumbnail_url,is_reply_owned_by_me"},
-    )
-    return res.get("data", [])
+    """投稿についたコメントを、返信の返信も含めてすべて取る（ページ送りあり）。"""
+    out: list[dict] = []
+    params = {"fields": COMMENT_FIELDS, "reverse": "false", "limit": "100"}
+    for _ in range(MAX_PAGES):
+        try:
+            res = _request("GET", f"{media_id}/conversation", params)
+        except ThreadsAPIError:
+            if out:
+                break
+            # conversation が使えない場合は、1段目のコメントだけを取る
+            res = _request("GET", f"{media_id}/replies", {"fields": COMMENT_FIELDS})
+            return res.get("data", [])
+        out += res.get("data", [])
+        after = ((res.get("paging") or {}).get("cursors") or {}).get("after")
+        if not after or not res.get("data") or not (res.get("paging") or {}).get("next"):
+            break
+        params["after"] = after
+    return out
+
+
+def parent_id(c: dict) -> str:
+    r = c.get("replied_to")
+    return (r.get("id") if isinstance(r, dict) else r) or ""
 
 
 MAX_IMAGES = 10
@@ -223,22 +248,44 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
         except ThreadsAPIError as e:
             print(f"コメントを取得できませんでした（{p['id']}）：{e}")
             continue
+        by_id = {c["id"]: c for c in comments}
+        mine = {
+            c["id"] for c in comments
+            if c.get("is_reply_owned_by_me") or c.get("username") == me["username"]
+        }
+        turns: dict[str, int] = {}  # 相手ごとの、こちらの返信への返信の数
         for c in sorted(comments, key=lambda c: c.get("timestamp", "")):
-            if c["id"] in done or c.get("is_reply_owned_by_me") or c.get("username") == me["username"]:
+            if c["id"] in mine:
+                continue
+            parent = parent_id(c)
+            to_us = parent in mine
+            if parent and parent != p["id"] and not to_us:
+                continue  # ほかの人どうしのやり取りには入らない
+            if to_us:
+                turns[c.get("username", "")] = turns.get(c.get("username", ""), 0) + 1
+            if c["id"] in done:
                 continue
             if not c.get("timestamp") or now - parse_ts(c["timestamp"]) > LOOKBACK:
                 continue
-            pending.append(
-                {
-                    "id": c["id"],
-                    "username": c.get("username", ""),
-                    "comment": (c.get("text") or "")[:500],
-                    "has_photo": c.get("media_type") in ("IMAGE", "CAROUSEL_ALBUM", "VIDEO"),
-                    "post_text": (p.get("text") or "")[:200],
-                    "_post_permalink": p.get("permalink", ""),
-                    "_raw": c,
-                }
-            )
+            item = {
+                "id": c["id"],
+                "username": c.get("username", ""),
+                "comment": (c.get("text") or "")[:500],
+                "has_photo": c.get("media_type") in ("IMAGE", "CAROUSEL_ALBUM", "VIDEO"),
+                "post_text": (p.get("text") or "")[:200],
+                "_post_permalink": p.get("permalink", ""),
+                "_raw": c,
+            }
+            if to_us:
+                if turns[c.get("username", "")] > MAX_TURNS:
+                    done[c["id"]] = {"action": "skip", "reason": "返信の返信が上限（3往復）", "at": now.isoformat(timespec="seconds")}
+                    continue
+                ours = by_id.get(parent, {})
+                earlier = by_id.get(parent_id(ours), {})
+                item["reply_to_our_reply"] = True
+                item["our_previous_reply"] = (ours.get("text") or "")[:300]
+                item["their_earlier_comment"] = (earlier.get("text") or "")[:300]
+            pending.append(item)
     return pending
 
 
