@@ -285,6 +285,13 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
                 item["reply_to_our_reply"] = True
                 item["our_previous_reply"] = (ours.get("text") or "")[:300]
                 item["their_earlier_comment"] = (earlier.get("text") or "")[:300]
+                # この人にすでにフォローのお願いをしたか（同じ人に何度もお願いしない）
+                user = c.get("username", "")
+                item["already_invited"] = any(
+                    "フォロー" in (o.get("text") or "")
+                    for o in comments
+                    if o["id"] in mine and by_id.get(parent_id(o), {}).get("username") == user
+                )
             pending.append(item)
     return pending
 
