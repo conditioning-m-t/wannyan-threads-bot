@@ -11,7 +11,7 @@ save_records() {
     # 置き場所の移行中でも記録を取りこぼさないよう、今の場所と accounts/ の両方を保存する
     for d in data "accounts/${ACCOUNT:-wannyan}/data"; do
       for f in replied.json escalations.json reply_log.txt manual_replies.json; do
-        [ -f "$d/$f" ] && git add "$d/$f"
+        git add -A -- "$d/$f" 2>/dev/null  # 消えたファイルの削除も保存する
       done
     done
     if ! git diff --cached --quiet; then

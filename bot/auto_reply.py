@@ -315,6 +315,9 @@ def post_manual_replies(me: dict, done: dict) -> None:
         if problem or not q.get("comment_id"):
             print(f"確認済みの返信を見送り：{problem or 'comment_id がない'}")
             continue
+        if (done.get(q["comment_id"]) or {}).get("action") == "reply":
+            print(f"確認済みの返信を見送り：@{q.get('username', '')} にはすでに返信済み")
+            continue
         try:
             reply_id = publish_text(me["id"], q["text"].strip(), reply_to_id=q["comment_id"])
         except ThreadsAPIError as e:
