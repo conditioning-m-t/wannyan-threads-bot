@@ -1,5 +1,6 @@
-2026-10-20 18:27 終了コード 0
-新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
-写真 0枚を確認に使います
-返信：@rinaten77「傘で上から覆ってます😂」 ← 傘で上から覆う作戦、愛情たっぷりですね😂 ご自身が濡れてでも守ってあげる姿が目に浮かんで、ほっこりしました。
-返信 1件（今日の合計 104件）
+2026-10-20 18:54 終了コード 0
+新しいコメント 2件のうち 2件を処理します（今回の返信上限 15件）
+写真 1枚を確認に使います
+返信に失敗：@washinoteruttu：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"AD-DkQaRlmFYY1PFsUXhJJc"}}
+返信：@yyamane4「まだエントリー間に合いますか？」 ← もちろん間に合います！写真もありがとうございます笑 頭をこてんと傾けて、ぐでーっと完全に身を預けてる姿に審査員一同ほっこりしました🐾
+返信 1件（今日の合計 105件）
