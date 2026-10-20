@@ -1,0 +1,15 @@
+{
+  "username": "zubora_kaji_lab",
+  "display_name": "ズボラ家事ラボ",
+  "short_name": "家事",
+  "genre": "家事・掃除・収納の時短",
+  "enabled": false,
+  "slots": [
+    "07:30",
+    "12:30",
+    "21:30"
+  ],
+  "max_per_day": 3,
+  "default_topic": "家事",
+  "report": "summary"
+}
