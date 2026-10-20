@@ -30,6 +30,8 @@ STATE = ACCOUNT.path("data/replied.json")
 ESCALATIONS = ACCOUNT.path("data/escalations.json")
 # オーナーが内容を確認した返信（保留にしたコメントへの返信など）。次の実行で投稿する
 MANUAL = ACCOUNT.path("data/manual_replies.json")
+# 移行前の置き場所に書かれた分も拾う（ペットのアカウントだけ）
+LEGACY_MANUAL = account.ROOT / "data" / "manual_replies.json"
 RULES = ACCOUNT.path("reply_rules.md")
 
 MAX_PER_DAY = 200  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう余裕を持たせる
@@ -304,9 +306,15 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
     return pending
 
 
+def manual_queue() -> tuple[list, list]:
+    legacy = load(LEGACY_MANUAL, []) if ACCOUNT.slug == account.LEGACY and LEGACY_MANUAL != MANUAL else []
+    return load(MANUAL, []), legacy
+
+
 def post_manual_replies(me: dict, done: dict) -> None:
     """オーナーが確認した返信を投稿する（data/manual_replies.json）。"""
-    queue = load(MANUAL, [])
+    queue, legacy = manual_queue()
+    queue = queue + legacy
     if not queue:
         return
     left = []
@@ -328,6 +336,8 @@ def post_manual_replies(me: dict, done: dict) -> None:
         print(f"確認済みの返信：@{q.get('username', '')} ← {q['text'].strip()}")
         time.sleep(5)
     save(MANUAL, left)
+    if legacy:
+        LEGACY_MANUAL.unlink()
     save(STATE, {"comments": done})
 
 
@@ -365,8 +375,8 @@ def main() -> int:
         out = os.environ.get("GITHUB_OUTPUT")
         if out:
             with open(out, "a") as f:
-                f.write(f"pending={len(pending) + len(load(MANUAL, []))}\n")
-        print(f"新しいコメント {len(pending)}件（確認済みの返信待ち {len(load(MANUAL, []))}件）")
+                f.write(f"pending={len(pending) + sum(map(len, manual_queue()))}\n")
+        print(f"新しいコメント {len(pending)}件（確認済みの返信待ち {sum(map(len, manual_queue()))}件）")
         return 0
     if not pending:
         print("新しいコメントはありません")

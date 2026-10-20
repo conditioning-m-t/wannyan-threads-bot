@@ -77,5 +77,10 @@ def all_accounts(enabled_only: bool = False) -> list[Account]:
 
 
 if __name__ == "__main__":
-    # Actions から呼ぶ：稼働中のアカウント名を JSON の配列で出す
-    print(json.dumps([a.slug for a in all_accounts(enabled_only=True)]))
+    # Actions から呼ぶ：アカウントごとに並列で動かすための一覧（JSON）を出す
+    # 引数 all を付けると停止中のアカウントも含める（接続テスト用）
+    import sys
+
+    only = not (len(sys.argv) > 1 and sys.argv[1] == "all")
+    rows = [{"account": a.slug, "secret": a.secret_name} for a in all_accounts(enabled_only=only)]
+    print(json.dumps({"include": rows}))

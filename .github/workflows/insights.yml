@@ -9,14 +9,29 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: insights
-  cancel-in-progress: true
-
 jobs:
+  accounts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: list
+        run: echo "matrix=$(python3 bot/account.py)" >> "$GITHUB_OUTPUT"
+
   collect:
+    needs: accounts
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.accounts.outputs.matrix) }}
+    concurrency:
+      group: insights-${{ matrix.account }}
+      cancel-in-progress: true
+    env:
+      ACCOUNT: ${{ matrix.account }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -25,15 +40,18 @@ jobs:
       - name: 反応データを取得
         working-directory: bot
         env:
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_ACCESS_TOKEN: ${{ secrets[matrix.secret] || (matrix.account == 'wannyan' && secrets.THREADS_ACCESS_TOKEN || '') }}
         run: python collect_insights.py
       - name: 保存
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for f in data/insights.json data/followers.json; do [ -f "$f" ] && git add "$f"; done
+          for f in insights.json followers.json; do git add -A -- "accounts/$ACCOUNT/data/$f" 2>/dev/null; done
           if ! git diff --cached --quiet; then
-            git commit -m "反応データを更新"
-            git pull --rebase origin main
-            git push
+            git commit -m "反応データを更新（$ACCOUNT）"
+            # ほかのアカウントの保存とぶつかったら、少し待ってやり直す
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push && break
+              sleep $((i * 5))
+            done
           fi

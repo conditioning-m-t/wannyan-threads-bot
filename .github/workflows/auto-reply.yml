@@ -18,12 +18,34 @@ permissions:
   issues: write
 
 jobs:
+  accounts:
+    # 稼働中のアカウント（accounts/*/account.json の enabled: true）を調べる
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: list
+        run: echo "matrix=$(python3 bot/account.py)" >> "$GITHUB_OUTPUT"
+
   bot:
+    needs: accounts
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.accounts.outputs.matrix) }}
+    # 同じアカウントの実行が重ならないようにする（二重投稿防止）。post.yml（予備）と同じグループ名
+    # ペット（wannyan）は複数アカウント対応の前からの名前 bot-loop のまま
     concurrency:
-      group: bot-loop
+      group: ${{ matrix.account == 'wannyan' && 'bot-loop' || format('bot-loop-{0}', matrix.account) }}
       cancel-in-progress: false
+    env:
+      ACCOUNT: ${{ matrix.account }}
+      # 合鍵はアカウントごと（例：THREADS_ACCESS_TOKEN_WANNYAN）。ペットだけ、未登録なら今までの合鍵を使う
+      THREADS_ACCESS_TOKEN: ${{ secrets[matrix.secret] || (matrix.account == 'wannyan' && secrets.THREADS_ACCESS_TOKEN || '') }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -36,16 +58,12 @@ jobs:
       - name: 投稿と返信をくり返す
         if: github.event_name == 'schedule' || inputs.mode == 'loop'
         env:
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash bot/loop.sh
       - name: 下見・見本（投稿しない）
         if: github.event_name == 'workflow_dispatch' && inputs.mode != 'loop'
         working-directory: bot
         env:
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           REPLY_TEST: ${{ inputs.mode == 'sample' && '1' || 'preview' }}
         run: |
           npm install -g @anthropic-ai/claude-code >/dev/null

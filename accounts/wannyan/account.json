@@ -1,0 +1,11 @@
+{
+  "username": "wannyan_pick",
+  "display_name": "わんにゃん暮らしの便利帖",
+  "short_name": "ペット",
+  "genre": "ペット（犬・猫）",
+  "enabled": true,
+  "slots": ["07:00", "12:00", "21:00"],
+  "max_per_day": 3,
+  "default_topic": "ペットのいる暮らし",
+  "report": "full"
+}
