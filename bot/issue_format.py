@@ -2,7 +2,7 @@
 
 本文の形式（人がGitHubアプリで編集しても壊れにくいことを優先）:
 
-    <!-- wannyan-drafts date=2026-10-20 -->
+    <!-- wannyan-drafts date=2026-10-20 account=wannyan -->
     ...説明...
     ### ① 07:00｜参加型
     - [ ] 07:00 を承認する
@@ -26,7 +26,9 @@ WEEKDAYS = "月火水木金土日"
 NUMBERS = "①②③④⑤"
 LABEL = "投稿案"
 
-HEADER_RE = re.compile(r"<!-- wannyan-drafts date=(\d{4}-\d{2}-\d{2}) -->")
+# account= が無いもの（複数アカウント対応の前に作った案）はペットのアカウント（wannyan）の案
+HEADER_RE = re.compile(r"<!-- wannyan-drafts date=(\d{4}-\d{2}-\d{2})(?: account=([a-z0-9_]+))? -->")
+LEGACY_ACCOUNT = "wannyan"
 CHECK_RE = re.compile(r"^- \[([ xX])\] (\d{2}:\d{2}) を承認する(.*)$", re.MULTILINE)
 TOPIC_RE = re.compile(r"<!-- topic (\d{2}:\d{2}) (.+?) -->")
 BLOCK_RE = re.compile(
@@ -49,18 +51,22 @@ class Draft:
 @dataclass
 class DraftIssue:
     date: str
+    account: str = LEGACY_ACCOUNT
     drafts: list[Draft] = field(default_factory=list)
 
 
-def render(date_str: str, posts: list[dict], approved: bool = True) -> tuple[str, str]:
+def render(
+    date_str: str, posts: list[dict], approved: bool = True, account: str = LEGACY_ACCOUNT, short_name: str = ""
+) -> tuple[str, str]:
     """drafts JSON から (タイトル, 本文) を作る。
 
     運用は「止めたい時だけ言う」方式なので、既定では承認済み（チェック済み）で作る。
     """
     d = date.fromisoformat(date_str)
-    title = f"【投稿案】{d.month}/{d.day}（{WEEKDAYS[d.weekday()]}）"
+    label = f"【投稿案・{short_name}】" if short_name else "【投稿案】"
+    title = f"{label}{d.month}/{d.day}（{WEEKDAYS[d.weekday()]}）"
     lines = [
-        f"<!-- wannyan-drafts date={date_str} -->",
+        f"<!-- wannyan-drafts date={date_str} account={account} -->",
         f"**{d.month}月{d.day}日（{WEEKDAYS[d.weekday()]}）の投稿案です。**",
         "",
         "チェックが入っている案は、その時刻に自動で投稿されます。止めたい案はチェックを外してください（ふだんはClaudeとのチャットで「2番やめて」と伝えればOK）。",
@@ -97,7 +103,7 @@ def parse(body: str) -> DraftIssue | None:
     m = HEADER_RE.search(body)
     if not m:
         return None
-    issue = DraftIssue(date=m.group(1))
+    issue = DraftIssue(date=m.group(1), account=m.group(2) or LEGACY_ACCOUNT)
     by_slot: dict[str, Draft] = {}
     for kind, slot, text in BLOCK_RE.findall(body):
         d = by_slot.setdefault(slot, Draft(slot=slot, text=""))

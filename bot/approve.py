@@ -8,6 +8,7 @@
   python bot/approve.py 2026-10-20 --sync drafts/2026-10-20.json
       下書きJSONを直したあと、まだ投稿していない案の本文をIssueに反映する
 （--sync と --approve は同時に指定できる。sync が先に実行される）
+ペット以外のアカウントは、先頭に ACCOUNT=<アカウント名> を付けて実行する
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from create_draft_issue import check  # noqa: E402
+from create_draft_issue import ACCOUNT, check  # noqa: E402
 from gh_cli import find_issue, gh_api  # noqa: E402
 from issue_format import parse  # noqa: E402
 
@@ -124,9 +125,9 @@ def main() -> int:
     ap.add_argument("--sync")
     args = ap.parse_args()
 
-    issue = find_issue(args.date)
+    issue = find_issue(args.date, ACCOUNT.slug)
     if not issue:
-        print(f"{args.date} の投稿案（未完了のもの）が見つかりません")
+        print(f"{ACCOUNT.display_name}：{args.date} の投稿案（未完了のもの）が見つかりません")
         return 1
     body = original = issue["body"] or ""
 

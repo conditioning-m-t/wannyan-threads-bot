@@ -8,13 +8,14 @@ from __future__ import annotations
 import json
 import sys
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
+import account
 from threads_api import ThreadsAPIError, _request, get_media_insights, list_my_threads
 
 JST = timezone(timedelta(hours=9))
-OUT = Path(__file__).resolve().parent.parent / "data" / "insights.json"
-FOLLOWERS = Path(__file__).resolve().parent.parent / "data" / "followers.json"
+ACCOUNT = account.load()
+OUT = ACCOUNT.path("data/insights.json")
+FOLLOWERS = ACCOUNT.path("data/followers.json")
 
 
 def record_followers() -> None:

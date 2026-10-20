@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 
+import account
 from threads_api import ThreadsAPIError, get_me, get_publishing_limit
 
 
@@ -15,8 +16,9 @@ def main() -> int:
         data = (limit.get("data") or [{}])[0]
         print(f"   直近24時間の投稿数：{data.get('quota_usage', '?')} / {data.get('config', {}).get('quota_total', '?')}")
         print(f"   直近24時間の返信数：{data.get('reply_quota_usage', '?')} / {data.get('reply_config', {}).get('quota_total', '?')}")
-        if me["username"] != "wannyan_pick":
-            print("⚠️ 想定と違うアカウントにつながっています。トークンを発行し直してください。")
+        expected = account.load().username
+        if me["username"] != expected:
+            print(f"⚠️ 想定（@{expected}）と違うアカウントにつながっています。トークンを発行し直してください。")
             return 1
         return 0
     except ThreadsAPIError as e:

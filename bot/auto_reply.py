@@ -21,15 +21,16 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import account
 from threads_api import ThreadsAPIError, get_me, list_my_threads, publish_text, _request
 
 JST = timezone(timedelta(hours=9))
-ROOT = Path(__file__).resolve().parent.parent
-STATE = ROOT / "data" / "replied.json"
-ESCALATIONS = ROOT / "data" / "escalations.json"
+ACCOUNT = account.load()
+STATE = ACCOUNT.path("data/replied.json")
+ESCALATIONS = ACCOUNT.path("data/escalations.json")
 # オーナーが内容を確認した返信（保留にしたコメントへの返信など）。次の実行で投稿する
-MANUAL = ROOT / "data" / "manual_replies.json"
-RULES = Path(__file__).resolve().parent / "reply_rules.md"
+MANUAL = ACCOUNT.path("data/manual_replies.json")
+RULES = ACCOUNT.path("reply_rules.md")
 
 MAX_PER_DAY = 200  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう余裕を持たせる
 MAX_PER_RUN = 15
@@ -350,6 +351,9 @@ def main() -> int:
         return 0
 
     me = get_me()
+    if me["username"] != ACCOUNT.username:
+        print(f"⚠️ 合鍵が別のアカウント（@{me['username']}）のものです。@{ACCOUNT.username} の合鍵を登録し直してください")
+        return 1
     if not check_only and os.environ.get("REPLY_TEST") != "preview":
         post_manual_replies(me, done)
     pending = scan(now, me, done)
@@ -439,7 +443,7 @@ def main() -> int:
     return 0
 
 
-LOG = ROOT / "data" / "reply_log.txt"
+LOG = ACCOUNT.path("data/reply_log.txt")
 SECRET_RE = re.compile(r"sk-ant-[A-Za-z0-9_\-]+|[A-Za-z0-9_\-]{60,}")
 
 

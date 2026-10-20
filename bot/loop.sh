@@ -8,7 +8,12 @@ claude_ready=0
 
 save_records() {
   ( cd .. &&
-    for f in data/replied.json data/escalations.json data/reply_log.txt data/manual_replies.json; do [ -f "$f" ] && git add "$f"; done
+    # 置き場所の移行中でも記録を取りこぼさないよう、今の場所と accounts/ の両方を保存する
+    for d in data "accounts/${ACCOUNT:-wannyan}/data"; do
+      for f in replied.json escalations.json reply_log.txt manual_replies.json; do
+        [ -f "$d/$f" ] && git add "$d/$f"
+      done
+    done
     if ! git diff --cached --quiet; then
       git commit -q -m "コメント返信の記録を更新" && git pull -q --rebase origin main && git push -q
     fi ) || echo "記録の保存に失敗（次回に再試行）"

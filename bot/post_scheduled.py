@@ -7,6 +7,7 @@
 - 1投稿目にURLを入れない（リンクはツリー2投稿目へ）
 - Amazonリンクを含む案は、リンクの横に PR が必須
 - 下書きの穴埋め記号（{{ }}）が残っていたら投稿しない
+- 合鍵のアカウント名が設定と違えば投稿しない（別アカウントへの誤投稿防止）
 """
 
 from __future__ import annotations
@@ -17,16 +18,18 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
+import account
 import github_api as gh
 from issue_format import LABEL, Draft, mark, parse
 
 JST = timezone(timedelta(hours=9))
 WINDOW = timedelta(minutes=90)
-MAX_PER_DAY = 3
+ACCOUNT = account.load()
+MAX_PER_DAY = ACCOUNT.max_per_day
 DRY_RUN = os.environ.get("DRY_RUN") == "1"
 
 # トピックを付けた投稿のほうが伸びやすい（Meta）。案にトピックがない時の既定値
-DEFAULT_TOPIC = "ペットのいる暮らし"
+DEFAULT_TOPIC = ACCOUNT.default_topic
 URL_RE = re.compile(r"https?://|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
 AMAZON_RE = re.compile(r"amazon\.co\.jp|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
 
@@ -51,7 +54,10 @@ def validate(d: Draft) -> list[str]:
 def publish(d: Draft) -> str:
     from threads_api import get_me, get_permalink, publish_text
 
-    user_id = get_me()["id"]
+    me = get_me()
+    if me["username"] != ACCOUNT.username:
+        raise RuntimeError(f"合鍵が別のアカウント（@{me['username']}）のものです。@{ACCOUNT.username} の合鍵を登録し直してください")
+    user_id = me["id"]
     main_id = publish_text(user_id, d.text, topic_tag=d.topic or DEFAULT_TOPIC)
     if d.reply:
         time.sleep(5)
@@ -75,7 +81,7 @@ def process_issue(issue: dict, now: datetime) -> None:
     number = issue["number"]
     body = issue["body"] or ""
     parsed = parse(body)
-    if not parsed:
+    if not parsed or parsed.account != ACCOUNT.slug:
         return
     today = now.date().isoformat()
 
@@ -150,7 +156,7 @@ def main() -> int:
     override = os.environ.get("NOW_JST")  # テスト用: 2026-10-20T07:05
     if override:
         now = datetime.fromisoformat(override).replace(tzinfo=JST)
-    print(f"実行時刻（日本時間）：{now:%Y-%m-%d %H:%M}{'（テスト実行）' if DRY_RUN else ''}")
+    print(f"@{ACCOUNT.username}｜実行時刻（日本時間）：{now:%Y-%m-%d %H:%M}{'（テスト実行）' if DRY_RUN else ''}")
     issues = gh.open_issues(LABEL)
     if not issues:
         print("処理する投稿案はありません")

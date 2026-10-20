@@ -43,9 +43,9 @@ def open_draft_issues() -> list[dict]:
     return gh_api(f"issues?state=open&labels={quote(LABEL)}&per_page=50") or []
 
 
-def find_issue(date_str: str) -> dict | None:
+def find_issue(date_str: str, account: str) -> dict | None:
     for issue in open_draft_issues():
         parsed = parse(issue.get("body") or "")
-        if parsed and parsed.date == date_str:
+        if parsed and parsed.date == date_str and parsed.account == account:
             return issue
     return None
