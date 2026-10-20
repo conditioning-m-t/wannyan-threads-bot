@@ -1,6 +1,6 @@
-2026-10-20 18:54 終了コード 0
-新しいコメント 2件のうち 2件を処理します（今回の返信上限 15件）
-写真 1枚を確認に使います
-返信に失敗：@washinoteruttu：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"AD-DkQaRlmFYY1PFsUXhJJc"}}
-返信：@yyamane4「まだエントリー間に合いますか？」 ← もちろん間に合います！写真もありがとうございます笑 頭をこてんと傾けて、ぐでーっと完全に身を預けてる姿に審査員一同ほっこりしました🐾
-返信 1件（今日の合計 105件）
+2026-10-20 18:57 終了コード 0
+新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
+写真 0枚を確認に使います
+返信（返信の返信）：@washinoteruttu「犬種が犬種だけに、雨だろうと雪だろうと、プルプルで終わり｡
+帰って下廻り綺麗に拭」 ← 雨でも雪でもプルプルで締めるの、頼もしすぎます笑 拭いてもまたプルプルなんて、愛おしさ倍増ですね。まだ弱小アカウントなので、フォローで応援してもらえたら火・金21時の選手権で盛り上げます🐾
+返信 1件（今日の合計 106件）
