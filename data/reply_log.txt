@@ -1,5 +1,6 @@
-2026-10-20 08:58 終了コード 0
-新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
-写真 1枚を確認に使います
-返信：@kimo_shine_1 ← 紫のドームからひょっこり顔だけ出してる…！ふわふわのクッションに頬をのせてじっとこちらを見る姿、審査員一同ほっこりです🥹
-返信 1件（今日の合計 30件）
+2026-10-20 09:05 終了コード 0
+新しいコメント 2件のうち 2件を処理します（今回の返信上限 15件）
+写真 2枚を確認に使います
+返信に失敗：@mei_s_dad：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"AtplhiKmXGYspz2Zux6Z0-u"}}
+報告に回す：@kuma_nmaru（虹の橋を渡った愛犬の思い出話のため、慎重な対応が必要。オーナー確認を依頼）
+返信 0件（今日の合計 30件）
