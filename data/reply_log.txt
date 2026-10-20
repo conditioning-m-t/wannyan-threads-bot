@@ -1,5 +1,5 @@
-2026-10-20 23:04 終了コード 0
+2026-10-21 00:15 終了コード 0
 新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
 写真 0枚を確認に使います
-返信（返信の返信）：@i_am_ran_shibainu_black__「また参加します！！！！」 ← 常連さん宣言、ありがとうございます笑 次の寝相も審査員一同、正座して待ってます🐾
-返信 1件（今日の合計 117件）
+返信に失敗：@fuuchans：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"Aoiw2K6uoQFAr7EuL3l7VuC"}}
+返信 0件（今日の合計 0件）
