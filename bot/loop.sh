@@ -8,7 +8,7 @@ claude_ready=0
 
 save_records() {
   ( cd .. &&
-    for f in data/replied.json data/escalations.json data/reply_log.txt; do [ -f "$f" ] && git add "$f"; done
+    for f in data/replied.json data/escalations.json data/reply_log.txt data/manual_replies.json; do [ -f "$f" ] && git add "$f"; done
     if ! git diff --cached --quiet; then
       git commit -q -m "コメント返信の記録を更新" && git pull -q --rebase origin main && git push -q
     fi ) || echo "記録の保存に失敗（次回に再試行）"
@@ -16,6 +16,8 @@ save_records() {
 
 while :; do
   echo "--- $(TZ=Asia/Tokyo date '+%H:%M')"
+  # チャットで確認した返信や下書きの修正を取り込むため、毎回最新にする
+  ( cd .. && git pull -q --rebase origin main ) || echo "最新の取り込みに失敗（そのまま続行）"
   DRY_RUN=0 python post_scheduled.py || echo "投稿処理でエラー"
 
   out=$(mktemp)

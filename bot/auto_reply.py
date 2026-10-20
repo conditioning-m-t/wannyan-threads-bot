@@ -27,6 +27,8 @@ JST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "data" / "replied.json"
 ESCALATIONS = ROOT / "data" / "escalations.json"
+# オーナーが内容を確認した返信（保留にしたコメントへの返信など）。次の実行で投稿する
+MANUAL = ROOT / "data" / "manual_replies.json"
 RULES = Path(__file__).resolve().parent / "reply_rules.md"
 
 MAX_PER_DAY = 200  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう余裕を持たせる
@@ -296,6 +298,30 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
     return pending
 
 
+def post_manual_replies(me: dict, done: dict) -> None:
+    """オーナーが確認した返信を投稿する（data/manual_replies.json）。"""
+    queue = load(MANUAL, [])
+    if not queue:
+        return
+    left = []
+    for q in queue:
+        problem = validate_reply(q.get("text", ""))
+        if problem or not q.get("comment_id"):
+            print(f"確認済みの返信を見送り：{problem or 'comment_id がない'}")
+            continue
+        try:
+            reply_id = publish_text(me["id"], q["text"].strip(), reply_to_id=q["comment_id"])
+        except ThreadsAPIError as e:
+            print(f"確認済みの返信に失敗（次回に再試行）：{e}")
+            left.append(q)
+            continue
+        done[q["comment_id"]] = {"action": "reply", "reply_id": reply_id, "at": datetime.now(JST).isoformat(timespec="seconds"), "manual": True}
+        print(f"確認済みの返信：@{q.get('username', '')} ← {q['text'].strip()}")
+        time.sleep(5)
+    save(MANUAL, left)
+    save(STATE, {"comments": done})
+
+
 def main() -> int:
     check_only = os.environ.get("REPLY_CHECK") == "1"
     if not check_only and not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN") and not os.environ.get("ANTHROPIC_API_KEY"):
@@ -319,14 +345,16 @@ def main() -> int:
         return 0
 
     me = get_me()
+    if not check_only and os.environ.get("REPLY_TEST") != "preview":
+        post_manual_replies(me, done)
     pending = scan(now, me, done)
     if check_only:
         # 確認だけ（Claudeは呼ばない）。新しいコメントの件数を Actions に伝える
         out = os.environ.get("GITHUB_OUTPUT")
         if out:
             with open(out, "a") as f:
-                f.write(f"pending={len(pending)}\n")
-        print(f"新しいコメント {len(pending)}件")
+                f.write(f"pending={len(pending) + len(load(MANUAL, []))}\n")
+        print(f"新しいコメント {len(pending)}件（確認済みの返信待ち {len(load(MANUAL, []))}件）")
         return 0
     if not pending:
         print("新しいコメントはありません")
