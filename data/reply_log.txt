@@ -1,5 +1,5 @@
-2026-10-20 19:47 終了コード 0
+2026-10-20 20:05 終了コード 0
 新しいコメント 1件のうち 1件を処理します（今回の返信上限 15件）
 写真 1枚を確認に使います
-返信：@moheji_cat「」 ← 頭を座布団に突っ込んだまま爆睡、寝相選手権にふさわしい大技です笑 背中のハート模様まで審査員の心を撃ち抜いてます🐾
-返信 1件（今日の合計 108件）
+返信に失敗：@chab.gab：HTTP 400: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":4279009,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with id 18［連絡先を伏せました］97 cannot be found.","fbtrace_id":"AeO_67vPyhLKrubTmuCZayH"}}
+返信 0件（今日の合計 108件）
