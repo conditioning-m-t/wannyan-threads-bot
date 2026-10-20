@@ -255,6 +255,8 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
             c["id"] for c in comments
             if c.get("is_reply_owned_by_me") or c.get("username") == me["username"]
         }
+        # すでにこちらが返信しているコメント（記録が消えても二度返信しないため）
+        answered = {parent_id(o) for o in comments if o["id"] in mine}
         turns: dict[str, int] = {}  # 相手ごとの、こちらの返信への返信の数
         for c in sorted(comments, key=lambda c: c.get("timestamp", "")):
             if c["id"] in mine:
@@ -266,6 +268,9 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
             if to_us:
                 turns[c.get("username", "")] = turns.get(c.get("username", ""), 0) + 1
             if c["id"] in done:
+                continue
+            if c["id"] in answered:
+                done[c["id"]] = {"action": "skip", "reason": "返信済みを確認", "at": now.isoformat(timespec="seconds")}
                 continue
             if not c.get("timestamp") or now - parse_ts(c["timestamp"]) > LOOKBACK:
                 continue
