@@ -1,2 +1,4 @@
-2026-10-21 17:05 の接続テスト
-❌ 接続失敗：THREADS_ACCESS_TOKEN が設定されていません。GitHub の Settings > Secrets and variables > Actions で登録してください。
+2026-10-21 17:43 の接続テスト
+✅ 接続成功：@kaji_sabori_nee（ユーザーID 39284932867819421）
+   直近24時間の投稿数：0 / 250
+   直近24時間の返信数：0 / 1000
