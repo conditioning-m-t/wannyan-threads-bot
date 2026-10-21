@@ -1,2 +1,2 @@
-2026-10-20 21:56 の接続テスト
+2026-10-21 16:39 の接続テスト
 ❌ 接続失敗：THREADS_ACCESS_TOKEN が設定されていません。GitHub の Settings > Secrets and variables > Actions で登録してください。
