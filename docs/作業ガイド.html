@@ -1,0 +1,230 @@
+<title>田代さんの作業ガイド</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Source+Code+Pro:wght@500&display=swap">
+<style>
+/* レイアウト：1列の手順書。上に全体の流れ図、下に手順ごとのカード。PC名・スマホ名・送る言葉をラベルで見分ける */
+:root{
+  --bg:#f4f6f7; --surface:#ffffff; --fg:#1d2629; --muted:#5b6a6f; --line:#d8e0e2;
+  --accent:#0e6b66; --accent-soft:#e1f0ee; --warn:#9a5b00; --warn-soft:#fdf1dc;
+  --pc:#3355a8; --pc-soft:#e6ecfa; --phone:#7a3f8f; --phone-soft:#f3e8f7;
+  --display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --mono:"Source Code Pro",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12181a; --surface:#1a2326; --fg:#e6eef0; --muted:#9aaab0; --line:#2c3a3e;
+  --accent:#5fc2b9; --accent-soft:#183634; --warn:#f0b45a; --warn-soft:#3a2b14;
+  --pc:#8fa9f0; --pc-soft:#1f2a45; --phone:#d39ae6; --phone-soft:#36203d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12181a; --surface:#1a2326; --fg:#e6eef0; --muted:#9aaab0; --line:#2c3a3e;
+  --accent:#5fc2b9; --accent-soft:#183634; --warn:#f0b45a; --warn-soft:#3a2b14;
+  --pc:#8fa9f0; --pc-soft:#1f2a45; --phone:#d39ae6; --phone-soft:#36203d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.75}
+.wrap{max-width:860px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:1.9rem;font-weight:900}
+h2{font-size:1.35rem;font-weight:900;display:flex;gap:10px;align-items:center}
+h3{font-size:1.08rem;font-weight:700}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch}
+.split{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.pill{font-size:.82rem;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+nav{display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-family:var(--display);font-weight:700;text-decoration:none;color:var(--fg);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--surface)}
+nav a:hover,nav a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+section{display:grid;gap:16px}
+.badge{font-family:var(--display);font-size:.95rem;background:var(--accent);color:var(--surface);width:2rem;height:2rem;border-radius:8px;display:inline-grid;place-items:center;flex:none}
+/* 流れ図 */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+.flow .node{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0;flex:1 1 120px;display:grid;gap:2px}
+.flow .node b{font-family:var(--display);font-size:.95rem}
+.flow .node span{font-size:.78rem;color:var(--muted)}
+.flow .arrow{align-self:center;color:var(--muted);font-weight:700}
+@media (max-width:560px){.flow{flex-direction:column}.flow .arrow{transform:rotate(90deg);align-self:center}}
+/* 手順カード */
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:grid;gap:12px}
+.step header{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.where{font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:6px;letter-spacing:.04em}
+.where.pc{background:var(--pc-soft);color:var(--pc)}
+.where.phone{background:var(--phone-soft);color:var(--phone)}
+.where.chat{background:var(--accent-soft);color:var(--accent)}
+ol{margin:0;padding-left:1.4em;display:grid;gap:6px}
+ol li{padding-left:2px}
+.btn{font-weight:700;border-bottom:2px solid var(--accent);padding:0 2px}
+.send{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.9rem}
+.send q{quotes:"「" "」";font-weight:700;background:var(--accent-soft);color:var(--accent);padding:2px 10px;border-radius:8px}
+.note{background:var(--warn-soft);color:var(--fg);border-radius:10px;padding:10px 14px;font-size:.9rem;display:grid;gap:4px}
+.note strong{color:var(--warn)}
+code,.code{font-family:var(--mono);font-size:.9em;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px;word-break:break-all}
+.copyrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);border-radius:10px;overflow:hidden}
+th,td{border-bottom:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{font-family:var(--display);font-size:.85rem;color:var(--muted);font-weight:700}
+.never{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.never li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.never li b{color:var(--warn)}
+footer{color:var(--muted);font-size:.82rem}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>田代さんの作業ガイド</h1>
+    <p class="lead">Threadsのアフィリエイトアカウントを増やすときに、田代さんにしかできない作業だけをまとめました。分からなくなったら、このページの手順の番号をチャットで伝えてください。</p>
+    <div class="split"><span class="pill">田代さん 1：Claude 9</span><span class="pill">画面ごとに1手ずつ</span><span class="pill">合鍵はチャットに貼らない</span></div>
+  </header>
+
+  <nav aria-label="目次">
+    <a href="#start">A 新しいアカウントを始める</a>
+    <a href="#link">B 商品リンクを作る</a>
+    <a href="#daily">C ふだんの作業</a>
+    <a href="#never">D 守ること</a>
+  </nav>
+
+  <section id="start">
+    <h2><span class="badge">A</span>新しいアカウントを始めるとき（1アカウントに1回・30分ほど）</h2>
+    <p class="lead">ジャンルが決まったら、Claudeが運用ルール・投稿案・プロフィール文をすべて用意します。田代さんは下の6つを順番に進めて、終わるたびにチャットで一言知らせてください。</p>
+    <div class="flow" role="list" aria-label="全体の流れ">
+      <div class="node" role="listitem"><b>1 Instagram</b><span>スマホ</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>2 Threads</b><span>スマホ</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>3 Metaテスター</b><span>PC＋スマホ</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>4 合鍵を発行</b><span>PC（Meta）</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>5 GitHubに登録</b><span>PC</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>6 Amazon</b><span>PC</span></div>
+    </div>
+
+    <article class="step">
+      <header><span class="badge">1</span><h3>Instagramのアカウントを作る</h3><span class="where phone">スマホ</span></header>
+      <p>Threadsだけでは作れないので、まずInstagramを作ります。Instagram側には何も投稿しなくて大丈夫です。</p>
+      <ol>
+        <li>Instagramアプリで、右下の<span class="btn">自分のアイコン</span>を押す</li>
+        <li>左上の<span class="btn">ユーザー名</span> → <span class="btn">アカウントを追加</span> → <span class="btn">新しいアカウントを作成</span></li>
+        <li>ユーザー名はClaudeが出した候補を入れる。パスワードは手元（パスワードアプリなど）に保存</li>
+        <li>名前を直すとき：<span class="btn">設定</span> → <span class="btn">アカウントセンター</span> → <span class="btn">プロフィール</span> → アカウントを選ぶ → <span class="btn">名前</span></li>
+        <li>念のため非公開に：<span class="btn">設定</span> → <span class="btn">アカウントのプライバシー</span> → <span class="btn">非公開アカウント</span>をオン</li>
+      </ol>
+      <div class="note"><strong>まちがえやすい点</strong>名前に本名を入れない。Instagramの名前の変更は14日間に2回までです。</div>
+    </article>
+
+    <article class="step">
+      <header><span class="badge">2</span><h3>Threadsのプロフィールを作る</h3><span class="where phone">スマホ</span></header>
+      <ol>
+        <li>Threadsアプリで、右下の<span class="btn">自分のアイコン</span>を長押し → <span class="btn">アカウントを追加</span></li>
+        <li>1で作ったInstagramアカウントを選んで入る（スマホのInstagramにログインしていないと出てきません）</li>
+        <li>名前・自己紹介（Claudeが用意した文をそのまま）・アイコンを入れ、プロフィールを<span class="btn">公開</span>にする</li>
+        <li><span class="btn">興味・関心</span>のタグに、ジャンルの言葉を入れる</li>
+      </ol>
+      <div class="send">終わったらチャットへ <q>2番できた</q> と、決まったユーザー名</div>
+    </article>
+
+    <article class="step">
+      <header><span class="badge">3</span><h3>Metaの開発用アプリに、テスターとして追加する</h3><span class="where pc">PC</span><span class="where phone">スマホ</span></header>
+      <ol>
+        <li><span class="where pc">PC</span> Meta for Developers（<code>developers.facebook.com</code>）を開き、右上の<span class="btn">マイアプリ</span> → <span class="btn">wannyan-bot</span></li>
+        <li>左のメニュー <span class="btn">アプリの役割</span> → <span class="btn">役割</span> → 右上の青い<span class="btn">メンバーを追加</span></li>
+        <li><span class="btn">Threadsテスター</span>を選び、新しいユーザー名を入れて送信</li>
+        <li><span class="where phone">スマホ</span> Threadsアプリを新しいアカウントに切り替え → <span class="btn">設定</span> → <span class="btn">その他の設定</span> → <span class="btn">ウェブサイトのアクセス許可</span> → <span class="btn">招待</span> → <span class="btn">承認</span></li>
+        <li><span class="where pc">PC</span> 役割の一覧で、新しいアカウントに「承認待ち」の表示が消えていればOK</li>
+      </ol>
+      <div class="send">終わったらチャットへ <q>3番できた</q></div>
+    </article>
+
+    <article class="step">
+      <header><span class="badge">4</span><h3>合鍵（トークン）を発行する</h3><span class="where pc">PC</span></header>
+      <ol>
+        <li>Meta for Developers の wannyan-bot で、左のメニュー <span class="btn">ユースケース</span> → Threads APIの<span class="btn">カスタマイズ</span></li>
+        <li>左側の<span class="btn">設定</span>を押す（「アクセス許可と機能」ではありません）</li>
+        <li>下にスクロールして<span class="btn">ユーザートークン生成ツール</span>の欄へ</li>
+        <li><strong>新しいアカウントの行</strong>の<span class="btn">アクセストークンを生成</span> → 許可 → 表示された合鍵を<span class="btn">コピー</span></li>
+      </ol>
+      <div class="note"><strong>まちがえやすい点</strong>ほかのアカウントの行を押さない。合鍵はチャットに貼らない・スクリーンショットも送らない。画面はすぐ5へ。</div>
+    </article>
+
+    <article class="step">
+      <header><span class="badge">5</span><h3>GitHubに合鍵を登録する</h3><span class="where pc">PC</span></header>
+      <ol>
+        <li>GitHubで <code>conditioning-m-t/wannyan-threads-bot</code> を開く</li>
+        <li>上の<span class="btn">設定</span>（Settings） → 左のメニュー <span class="btn">シークレットと変数</span>（Secrets and variables） → <span class="btn">アクション</span>（Actions）</li>
+        <li>「リポジトリのシークレット」の緑のボタン<span class="btn">新しいリポジトリシークレット</span>を押す（「環境シークレットを管理する」ではありません）</li>
+        <li><span class="btn">名前</span>に、Claudeが伝える名前をそのまま入れる
+          <div class="copyrow"><span class="code" id="secret-name">THREADS_ACCESS_TOKEN_＜アカウント名を大文字＞</span></div>
+          例：家事なら <code>THREADS_ACCESS_TOKEN_KAJI</code>
+        </li>
+        <li><span class="btn">秘密</span>（Secret）の欄に、4でコピーした合鍵を貼る → <span class="btn">シークレットを追加</span></li>
+      </ol>
+      <div class="send">終わったらチャットへ <q>5番できた</q> → Claudeが接続テストをして結果を報告します</div>
+    </article>
+
+    <article class="step">
+      <header><span class="badge">6</span><h3>Amazonアソシエイトに登録サイトとトラッキングIDを追加する</h3><span class="where pc">PC</span></header>
+      <ol>
+        <li>Amazonアソシエイト・セントラル（<code>affiliate.amazon.co.jp</code>）に、いつものアカウントでログイン</li>
+        <li>右上のお名前にマウスを乗せる → <span class="btn">アカウント設定</span> → <span class="btn">ウェブサイトおよびモバイルアプリの情報を編集</span></li>
+        <li>ウェブサイトの欄に、新しいアカウントのアドレスを入れて<span class="btn">追加</span> → 最後まで進めて保存
+          <div class="copyrow"><span class="code">https://www.threads.com/@＜ユーザー名＞</span></div>
+        </li>
+        <li>右上のお名前 → <span class="btn">トラッキングIDの管理</span> → 黄色の<span class="btn">トラッキングIDを追加する</span> → 名前を入れて作成（最後の「-22」は自動）</li>
+      </ol>
+      <div class="send">終わったらチャットへ <q>6番できた</q> と、できたトラッキングID</div>
+    </article>
+  </section>
+
+  <section id="link">
+    <h2><span class="badge">B</span>商品リンクを作るとき（その都度）</h2>
+    <div class="flow" role="list" aria-label="商品リンクの流れ">
+      <div class="node" role="listitem"><b>Claudeが候補を出す</b><span>商品名＋検索リンク</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>商品ページを開く</b><span>PC</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>追跡番号を選んでコピー</b><span>SiteStripe</span></div><div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>スクショ＋リンクを貼る</b><span>チャット</span></div>
+    </div>
+    <article class="step">
+      <header><span class="badge">B</span><h3>リンクの作り方</h3><span class="where pc">PC</span><span class="where chat">チャット</span></header>
+      <ol>
+        <li>Claudeが出した検索リンクを開き、指定の商品の<strong>商品ページ</strong>を開く</li>
+        <li>画面のいちばん上の帯（SiteStripe）の黄色い<span class="btn">リンク生成</span></li>
+        <li>右側の<span class="btn">問い合わせ番号（追跡番号）</span>を、<strong>そのアカウントのトラッキングID</strong>に切り替える（下の表）</li>
+        <li>リンク形式は<span class="btn">ショート</span>のまま → <span class="btn">アフィリエイトリンクをコピー</span></li>
+        <li>商品ページのスクリーンショットと、リンクを<strong>同じ順番で</strong>チャットに貼る</li>
+      </ol>
+      <div class="note"><strong>まちがえやすい点</strong>追跡番号が前のアカウントのままになっていることがあります。スクリーンショットは、右側の「お届け先」（お名前・郵便番号）を隠すか切り取ってください。自分のリンクから自分で買うのは規約違反です。</div>
+    </article>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>アカウント</th><th>Threads</th><th>トラッキングID</th><th>合鍵の名前（GitHub）</th></tr></thead>
+        <tbody>
+          <tr><td>ペット</td><td>@wannyan_pick</td><td><code>wannyanpick-22</code></td><td><code>THREADS_ACCESS_TOKEN</code></td></tr>
+          <tr><td>家事</td><td>@kaji_sabori_nee</td><td><code>kajisabori-22</code></td><td><code>THREADS_ACCESS_TOKEN_KAJI</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="daily">
+    <h2><span class="badge">C</span>ふだんの作業</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>いつ</th><th>やること</th><th>チャットに送る言葉の例</th></tr></thead>
+        <tbody>
+          <tr><td>毎晩18:17ごろ</td><td>翌日の投稿案の報告を見る。そのままでよければ返信はいりません</td><td>「家事の3番やめて」「ペットの2番の◯◯を変えて」</td></tr>
+          <tr><td>いつでも</td><td>アカウントごと止める・再開する</td><td>「家事、全部止めて」「家事、再開して」</td></tr>
+          <tr><td>毎週月曜</td><td>Amazonアソシエイトのレポート画面のスクリーンショット（数字だけ）</td><td>スクリーンショットを貼るだけ</td></tr>
+          <tr><td>12月中旬までに1回</td><td>合鍵の自動更新の登録（その時に1手ずつ案内します）</td><td>「合鍵の自動更新をやりたい」</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="never">
+    <h2><span class="badge">D</span>守ること</h2>
+    <ul class="never">
+      <li><b>合鍵（トークン）・パスワード</b>はチャットに貼らない。スクリーンショットも送らない</li>
+      <li><b>個人情報</b>（お名前・住所・郵便番号・メール・電話番号）は、スクリーンショットで隠す</li>
+      <li><b>自分のリンクから自分で買わない</b>（Amazonアソシエイトの規約違反）</li>
+      <li><b>いいね・他人の投稿へのコメントの自動化</b>はしない（アカウント停止の危険）。手動ならOK</li>
+    </ul>
+  </section>
+
+  <footer>このページは、手順が変わったらClaudeが更新します。</footer>
+</div>
