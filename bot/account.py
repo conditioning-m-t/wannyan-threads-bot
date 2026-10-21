@@ -43,6 +43,8 @@ class Account:
     max_per_day: int = 3
     default_topic: str = ""
     report: str = "summary"  # full=チャットに全文 / summary=要約だけ
+    # 攻めモード：最初のコメントへの返信でもフォローをお願いする（同じ人には1回まで）
+    follow_push: bool = False
 
     def path(self, name: str) -> Path:
         """アカウント専用のファイル（例：data/replied.json、drafts、products.json、reply_rules.md）。"""

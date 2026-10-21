@@ -236,7 +236,7 @@ def test_mode() -> int:
     return 0
 
 
-def scan(now: datetime, me: dict, done: dict) -> list[dict]:
+def scan(now: datetime, me: dict, done: dict, invited: set[str] | None = None) -> list[dict]:
     """直近の投稿についた、まだ対応していないコメントを集める。"""
     posts = [
         p for p in list_my_threads(limit=15)
@@ -300,6 +300,9 @@ def scan(now: datetime, me: dict, done: dict) -> list[dict]:
                     for o in comments
                     if o["id"] in mine and by_id.get(parent_id(o), {}).get("username") == user
                 )
+            if ACCOUNT.follow_push:
+                # 攻めモード：最初のコメントにもフォローのお願いを入れる。ほかの投稿でお願い済みの人には繰り返さない
+                item["already_invited"] = item.get("already_invited", False) or c.get("username", "") in (invited or set())
             pending.append(item)
     return pending
 
@@ -359,7 +362,7 @@ def main() -> int:
         return 1
     if not check_only and os.environ.get("REPLY_TEST") != "preview":
         post_manual_replies(me, done)
-    pending = scan(now, me, done)
+    pending = scan(now, me, done, set(state.get("invited", [])))
     if check_only:
         # 確認だけ（Claudeは呼ばない）。新しいコメントの件数を Actions に伝える
         out = os.environ.get("GITHUB_OUTPUT")
@@ -419,6 +422,8 @@ def main() -> int:
                 print(f"返信に失敗：@{c['username']}：{e}")
                 continue
             done[c["id"]] = {"action": "reply", "reply_id": reply_id, "at": stamp()}
+            if ACCOUNT.follow_push and "フォロー" in d["text"] and c["username"] not in state.setdefault("invited", []):
+                state["invited"].append(c["username"])
             replied += 1
             tag = "（返信の返信）" if c.get("reply_to_our_reply") else ""
             print(f"返信{tag}：@{c['username']}「{c['comment'][:40]}」 ← {d['text'].strip()}")
