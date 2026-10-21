@@ -5,6 +5,12 @@ on:
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch:
+  # アカウントを稼働中にしたときや、start_request.txt を更新したときは、定期実行を待たずにすぐ動かす
+  push:
+    branches: [main]
+    paths:
+      - "accounts/*/account.json"
+      - "accounts/*/start_request.txt"
 
 permissions:
   contents: write
