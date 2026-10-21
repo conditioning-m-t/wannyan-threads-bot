@@ -74,17 +74,37 @@ def publish_text(user_id: str, text: str, reply_to_id: str | None = None, topic_
     container = _request("POST", f"{user_id}/threads", params)
     creation_id = container["id"]
 
-    # コンテナの準備完了を待つ（テキストは通常すぐ終わる）
-    for _ in range(10):
-        status = _request("GET", creation_id, {"fields": "status,error_message"})
+    # コンテナの準備完了を待つ。作った直後は「Media Not Found」が返ることがあるので待って再確認する
+    time.sleep(3)
+    for _ in range(20):
+        try:
+            status = _request("GET", creation_id, {"fields": "status,error_message"})
+        except ThreadsAPIError as e:
+            if not _not_ready(e):
+                raise
+            time.sleep(3)
+            continue
         if status.get("status") == "FINISHED":
             break
         if status.get("status") == "ERROR":
             raise ThreadsAPIError(f"投稿の準備に失敗: {status.get('error_message')}")
         time.sleep(3)
 
-    published = _request("POST", f"{user_id}/threads_publish", {"creation_id": creation_id})
-    return published["id"]
+    for attempt in range(4):
+        try:
+            published = _request("POST", f"{user_id}/threads_publish", {"creation_id": creation_id})
+            return published["id"]
+        except ThreadsAPIError as e:
+            if not _not_ready(e) or attempt == 3:
+                raise
+            time.sleep(10)
+    raise ThreadsAPIError("公開に失敗しました")
+
+
+def _not_ready(e: Exception) -> bool:
+    """作ったばかりで、まだ見つからない（少し待てば成功する）エラーか。"""
+    msg = str(e)
+    return "4279009" in msg or "Media Not Found" in msg or '"is_transient":true' in msg
 
 
 def get_permalink(media_id: str) -> str:

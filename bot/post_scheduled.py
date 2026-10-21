@@ -59,10 +59,19 @@ def publish(d: Draft) -> str:
         raise RuntimeError(f"合鍵が別のアカウント（@{me['username']}）のものです。@{ACCOUNT.username} の合鍵を登録し直してください")
     user_id = me["id"]
     main_id = publish_text(user_id, d.text, topic_tag=d.topic or DEFAULT_TOPIC)
+    link = ""
+    try:
+        link = get_permalink(main_id)
+    except Exception:  # noqa: BLE001
+        pass
     if d.reply:
-        time.sleep(5)
-        publish_text(user_id, d.reply, reply_to_id=main_id)
-    return get_permalink(main_id)
+        time.sleep(10)
+        try:
+            publish_text(user_id, d.reply, reply_to_id=main_id)
+        except Exception as e:  # noqa: BLE001
+            # 1投稿目はもう公開済みなので「投稿済み」として扱い（二重投稿を防ぐ）、2投稿目の失敗だけ知らせる
+            return f"{link}\n\n⚠️ ツリー2投稿目の投稿に失敗しました：{e}"
+    return link
 
 
 def save(number: int, body: str) -> None:
