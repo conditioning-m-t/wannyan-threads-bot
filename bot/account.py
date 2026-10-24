@@ -27,6 +27,7 @@ LEGACY_CONFIG = {
     "max_per_day": 3,
     "default_topic": "ペットのいる暮らし",
     "report": "full",
+    "follow_push": True,  # 2026-10-24 オーナー指示：最初のコメントへの返信でも、さりげなくフォロー誘導
 }
 
 
