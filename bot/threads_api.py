@@ -101,6 +101,45 @@ def publish_text(user_id: str, text: str, reply_to_id: str | None = None, topic_
     raise ThreadsAPIError("公開に失敗しました")
 
 
+def publish_video(user_id: str, video_url: str, text: str, topic_tag: str | None = None) -> str:
+    """動画つき投稿を公開し、投稿IDを返す。video_url は誰でも見られるURLであること。"""
+    if len(text) > 500:
+        raise ThreadsAPIError(f"500文字を超えています（{len(text)}文字）")
+    params = {"media_type": "VIDEO", "video_url": video_url, "text": text}
+    if topic_tag:
+        params["topic_tag"] = topic_tag
+    container = _request("POST", f"{user_id}/threads", params)
+    creation_id = container["id"]
+
+    # 動画はThreads側の変換に時間がかかるので、最大およそ10分待つ
+    time.sleep(10)
+    for _ in range(60):
+        try:
+            status = _request("GET", creation_id, {"fields": "status,error_message"})
+        except ThreadsAPIError as e:
+            if not _not_ready(e):
+                raise
+            time.sleep(10)
+            continue
+        if status.get("status") == "FINISHED":
+            break
+        if status.get("status") in ("ERROR", "EXPIRED"):
+            raise ThreadsAPIError(f"動画の準備に失敗: {status.get('error_message')}")
+        time.sleep(10)
+    else:
+        raise ThreadsAPIError("動画の準備が10分以内に終わりませんでした")
+
+    for attempt in range(4):
+        try:
+            published = _request("POST", f"{user_id}/threads_publish", {"creation_id": creation_id})
+            return published["id"]
+        except ThreadsAPIError as e:
+            if not _not_ready(e) or attempt == 3:
+                raise
+            time.sleep(15)
+    raise ThreadsAPIError("公開に失敗しました")
+
+
 def _not_ready(e: Exception) -> bool:
     """作ったばかりで、まだ見つからない（少し待てば成功する）エラーか。"""
     msg = str(e)

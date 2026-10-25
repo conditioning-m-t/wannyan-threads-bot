@@ -224,6 +224,14 @@ Metaによると、トピックを付けた投稿のほうが成果が高い。�
 
 `slot` は `07:00` / `12:00` / `21:00` のどれか。
 
+## 動画の投稿（2026-10-25 追加）
+
+テキスト投稿の仕組みとは別に、動画を投稿できる（Actions「動画を投稿」）。
+1. 動画（MP4・H.264・AAC）を `media/` に置く（リポジトリは公開なので、動画は誰でも見られる前提で置く）
+2. `video_posts/YYYY-MM-DD_名前.json` を `status: "pending"` で作る（形式は `bot/post_video.py` の先頭）
+3. コミットして push すると、その場で1本投稿され、結果（posted / error、リンク）がファイルに書き戻される
+- 1日の投稿数（3本）とは別枠になるので、出しすぎに注意する
+
 ## 仕組みの構成
 
 - `bot/issue_format.py`：承認用Issueの本文を作る／読む
@@ -234,3 +242,4 @@ Metaによると、トピックを付けた投稿のほうが成果が高い。�
 - `bot/collect_insights.py`：反応データを `data/insights.json` に保存（Actions「反応データを収集」、17:53）
 - `bot/auto_reply.py` ＋ `bot/reply_rules.md`：コメントへの自動返信（loop.sh から2分おきに確認）
 - `bot/connection_test.py`：接続テスト（投稿しない）
+- `bot/post_video.py`：`video_posts/` の動画を投稿（Actions「動画を投稿」、push で動く）
