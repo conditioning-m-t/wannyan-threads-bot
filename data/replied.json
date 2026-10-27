@@ -1005,6 +1005,11 @@
       "action": "reply",
       "reply_id": "18108666131354001",
       "at": "2026-10-28T00:07:36+09:00"
+    },
+    "17951242869315254": {
+      "action": "reply",
+      "reply_id": "17947509552353902",
+      "at": "2026-10-28T00:26:32+09:00"
     }
   },
   "invited": [
@@ -1020,6 +1025,7 @@
     "mariposa_unica_del_mundo",
     "ten.810_mameshiba",
     "yokasougoukenkyuujo",
-    "tomoki.good_harvest"
+    "tomoki.good_harvest",
+    "go5ikyu"
   ]
 }
