@@ -1025,6 +1025,15 @@
       "action": "reply",
       "reply_id": "18095251652180100",
       "at": "2026-10-28T07:11:33+09:00"
+    },
+    "18099670211389236": {
+      "action": "escalate",
+      "at": "2026-10-28T07:21:58+09:00"
+    },
+    "18222141868355725": {
+      "action": "reply",
+      "reply_id": "18125662144880270",
+      "at": "2026-10-28T07:22:12+09:00"
     }
   },
   "invited": [
@@ -1044,6 +1053,7 @@
     "go5ikyu",
     "mameshiba_kota",
     "memenabe_love1105",
-    "shiba.ks62"
+    "shiba.ks62",
+    "taisetunamono.hm"
   ]
 }
