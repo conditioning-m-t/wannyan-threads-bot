@@ -1010,6 +1010,11 @@
       "action": "reply",
       "reply_id": "17947509552353902",
       "at": "2026-10-28T00:26:32+09:00"
+    },
+    "18111478616146290": {
+      "action": "reply",
+      "reply_id": "18396464845160029",
+      "at": "2026-10-28T01:50:41+09:00"
     }
   },
   "invited": [
@@ -1026,6 +1031,7 @@
     "ten.810_mameshiba",
     "yokasougoukenkyuujo",
     "tomoki.good_harvest",
-    "go5ikyu"
+    "go5ikyu",
+    "mameshiba_kota"
   ]
 }
