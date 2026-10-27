@@ -960,6 +960,11 @@
       "action": "reply",
       "reply_id": "18114137804520443",
       "at": "2026-10-27T21:18:45+09:00"
+    },
+    "18088625990298386": {
+      "action": "reply",
+      "reply_id": "18494513167099291",
+      "at": "2026-10-27T21:21:08+09:00"
     }
   },
   "invited": [
@@ -967,6 +972,7 @@
     "borzoi_leo_luca",
     "mamemuukazutto",
     "aiboo_1take",
-    "shi8818"
+    "shi8818",
+    "kinchan_0129"
   ]
 }
