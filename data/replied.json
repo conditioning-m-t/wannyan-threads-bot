@@ -1020,6 +1020,11 @@
       "action": "reply",
       "reply_id": "18075009752773951",
       "at": "2026-10-28T03:16:07+09:00"
+    },
+    "18129533656869938": {
+      "action": "reply",
+      "reply_id": "18095251652180100",
+      "at": "2026-10-28T07:11:33+09:00"
     }
   },
   "invited": [
@@ -1038,6 +1043,7 @@
     "tomoki.good_harvest",
     "go5ikyu",
     "mameshiba_kota",
-    "memenabe_love1105"
+    "memenabe_love1105",
+    "shiba.ks62"
   ]
 }
