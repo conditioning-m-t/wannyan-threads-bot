@@ -1044,6 +1044,11 @@
       "action": "reply",
       "reply_id": "18096714497659797",
       "at": "2026-10-28T08:39:51+09:00"
+    },
+    "17953240491276102": {
+      "action": "reply",
+      "reply_id": "18149994700561986",
+      "at": "2026-10-28T08:52:34+09:00"
     }
   },
   "invited": [
@@ -1066,6 +1071,7 @@
     "shiba.ks62",
     "taisetunamono.hm",
     "rinnet0815",
-    "fatma_i_h"
+    "fatma_i_h",
+    "yuriko_makita"
   ]
 }
