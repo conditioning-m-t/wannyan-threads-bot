@@ -990,6 +990,16 @@
       "action": "reply",
       "reply_id": "18358172845175864",
       "at": "2026-10-27T22:38:42+09:00"
+    },
+    "18090820400252304": {
+      "action": "reply",
+      "reply_id": "18131975503703732",
+      "at": "2026-10-27T23:10:14+09:00"
+    },
+    "18109034417366733": {
+      "action": "reply",
+      "reply_id": "18220574725349237",
+      "at": "2026-10-27T23:10:48+09:00"
     }
   },
   "invited": [
@@ -1002,6 +1012,8 @@
     "iorion_cub_camp",
     "hana_stagram1113",
     "eritip0911",
-    "mariposa_unica_del_mundo"
+    "mariposa_unica_del_mundo",
+    "ten.810_mameshiba",
+    "yokasougoukenkyuujo"
   ]
 }
