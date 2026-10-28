@@ -1049,6 +1049,16 @@
       "action": "reply",
       "reply_id": "18149994700561986",
       "at": "2026-10-28T08:52:34+09:00"
+    },
+    "18130787960501948": {
+      "action": "reply",
+      "reply_id": "18113483195272388",
+      "at": "2026-10-28T11:18:21+09:00"
+    },
+    "18028852688870124": {
+      "action": "reply",
+      "reply_id": "18400953388162346",
+      "at": "2026-10-28T11:18:51+09:00"
     }
   },
   "invited": [
@@ -1072,6 +1082,8 @@
     "taisetunamono.hm",
     "rinnet0815",
     "fatma_i_h",
-    "yuriko_makita"
+    "yuriko_makita",
+    "gonzaemon.tunayoshi",
+    "yuki_puri_gin"
   ]
 }
