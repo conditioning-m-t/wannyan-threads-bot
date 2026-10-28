@@ -1069,6 +1069,11 @@
       "action": "reply",
       "reply_id": "17966354082210379",
       "at": "2026-10-28T12:06:38+09:00"
+    },
+    "18111832586228323": {
+      "action": "reply",
+      "reply_id": "18099513002410045",
+      "at": "2026-10-28T12:13:23+09:00"
     }
   },
   "invited": [
@@ -1096,6 +1101,7 @@
     "gonzaemon.tunayoshi",
     "yuki_puri_gin",
     "e.keimey",
-    "naonamako36"
+    "naonamako36",
+    "mika561052"
   ]
 }
