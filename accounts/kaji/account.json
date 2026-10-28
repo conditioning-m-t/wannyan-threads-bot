@@ -6,13 +6,10 @@
   "enabled": true,
   "slots": [
     "05:30",
-    "11:00",
-    "17:00",
-    "21:00",
-    "23:30"
+    "21:00"
   ],
-  "max_per_day": 4,
-  "default_topic": "家事",
+  "max_per_day": 2,
+  "default_topic": "夫婦",
   "report": "full",
   "tracking_id": "kajisabori-22",
   "follow_push": false
