@@ -1124,6 +1124,11 @@
       "action": "reply",
       "reply_id": "18148204780570266",
       "at": "2026-10-28T15:17:04+09:00"
+    },
+    "18109015817256298": {
+      "action": "reply",
+      "reply_id": "18092912357281416",
+      "at": "2026-10-28T15:23:30+09:00"
     }
   },
   "invited": [
@@ -1160,6 +1165,7 @@
     "kotahaha0911",
     "guangdaoxianyuzi",
     "goe2684010",
-    "washinoteruttu"
+    "washinoteruttu",
+    "daisuke.shi.82"
   ]
 }
