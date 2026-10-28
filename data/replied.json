@@ -1059,6 +1059,11 @@
       "action": "reply",
       "reply_id": "18400953388162346",
       "at": "2026-10-28T11:18:51+09:00"
+    },
+    "18568421893079911": {
+      "action": "reply",
+      "reply_id": "17919395073464418",
+      "at": "2026-10-28T11:40:09+09:00"
     }
   },
   "invited": [
@@ -1084,6 +1089,7 @@
     "fatma_i_h",
     "yuriko_makita",
     "gonzaemon.tunayoshi",
-    "yuki_puri_gin"
+    "yuki_puri_gin",
+    "e.keimey"
   ]
 }
