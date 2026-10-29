@@ -341,6 +341,10 @@ def main() -> int:
         return 0
     if os.environ.get("REPLY_TEST") == "1":
         return test_mode()
+    # 一時停止：data/pause_replies があるあいだは返信しない（アカウントの審査中など）
+    if ACCOUNT.path("data/pause_replies").exists():
+        print("自動返信は一時停止中です（data/pause_replies）")
+        return 0
 
     now = datetime.now(JST)
     today = now.date().isoformat()
