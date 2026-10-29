@@ -32,7 +32,7 @@ ESCALATIONS = ACCOUNT.path("data/escalations.json")
 MANUAL = ACCOUNT.path("data/manual_replies.json")
 RULES = ACCOUNT.path("reply_rules.md")
 
-MAX_PER_DAY = 200  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう余裕を持たせる
+MAX_PER_DAY = ACCOUNT.max_replies_per_day  # Threadsの上限は24時間で1000件。大量返信でスパム扱いされないよう、アカウントごとに控えめにする
 MAX_PER_RUN = 15
 MAX_CLASSIFY = 30
 LOOKBACK = timedelta(hours=72)

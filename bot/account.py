@@ -27,7 +27,9 @@ LEGACY_CONFIG = {
     "max_per_day": 3,
     "default_topic": "ペットのいる暮らし",
     "report": "full",
-    "follow_push": True,  # 2026-10-24 オーナー指示：最初のコメントへの返信でも、さりげなくフォロー誘導
+    # 2026-10-29 Threadsの「人間であることの確認」→審査（同日復活）を受けて、返信を控えめにする
+    "follow_push": False,
+    "max_replies_per_day": 15,
 }
 
 
@@ -46,6 +48,8 @@ class Account:
     report: str = "summary"  # full=チャットに全文 / summary=要約だけ
     # 攻めモード：最初のコメントへの返信でもフォローをお願いする（同じ人には1回まで）
     follow_push: bool = False
+    # 1日に自動で返信する上限（多すぎるとスパム扱いされやすい）
+    max_replies_per_day: int = 200
 
     def path(self, name: str) -> Path:
         """アカウント専用のファイル（例：data/replied.json、drafts、products.json、reply_rules.md）。"""
