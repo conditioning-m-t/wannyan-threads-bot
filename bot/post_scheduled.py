@@ -31,7 +31,7 @@ DRY_RUN = os.environ.get("DRY_RUN") == "1"
 # トピックを付けた投稿のほうが伸びやすい（Meta）。案にトピックがない時の既定値
 DEFAULT_TOPIC = ACCOUNT.default_topic
 URL_RE = re.compile(r"https?://|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
-AMAZON_RE = re.compile(r"amazon\.co\.jp|link\.amazon|amzn\.(to|asia)|a\.co/", re.IGNORECASE)
+AMAZON_RE = re.compile(r"amazon\.co\.jp|link\.amazon|amzn\.(to|asia)|a\.co/|rakuten\.co\.jp|a\.r10\.to", re.IGNORECASE)  # アフィリエイトのリンク（Amazon・楽天）
 
 
 def validate(d: Draft) -> list[str]:
@@ -47,7 +47,7 @@ def validate(d: Draft) -> list[str]:
     if d.topic and (len(d.topic) > 50 or "." in d.topic or "&" in d.topic):
         errors.append("トピックは50文字以内で、「.」「&」は使えません")
     if d.reply and AMAZON_RE.search(d.reply) and "PR" not in d.reply:
-        errors.append("Amazonリンクを含む案ですが、ツリー2投稿目のリンクの横に PR がありません")
+        errors.append("アフィリエイトのリンク（Amazon・楽天）を含む案ですが、ツリー2投稿目のリンクの横に PR がありません")
     return errors
 
 

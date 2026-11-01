@@ -1,16 +1,16 @@
 {
-  "username": "kaji_sabori_nee",
-  "display_name": "家事サボり姉さん",
-  "short_name": "家事",
-  "genre": "家事・掃除・収納の時短",
-  "enabled": true,
+  "username": "umaimon_kaigi",
+  "display_name": "全国うまいもん会議",
+  "short_name": "グルメ",
+  "genre": "食品・お取り寄せ・ご当地グルメ（楽天アフィリエイト）",
+  "enabled": false,
   "slots": [
-    "05:30",
+    "12:00",
     "21:00"
   ],
   "max_per_day": 2,
-  "default_topic": "夫婦",
+  "default_topic": "お取り寄せ",
   "report": "full",
-  "tracking_id": "kajisabori-22",
-  "follow_push": false
+  "follow_push": false,
+  "affiliate": "楽天アフィリエイト"
 }
