@@ -3,7 +3,7 @@
   "display_name": "全国うまいもん会議",
   "short_name": "グルメ",
   "genre": "食品・お取り寄せ・ご当地グルメ（楽天アフィリエイト）",
-  "enabled": false,
+  "enabled": true,
   "slots": [
     "12:00",
     "21:00"
