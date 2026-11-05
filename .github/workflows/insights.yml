@@ -34,6 +34,9 @@ jobs:
           for f in data/insights.json data/followers.json; do [ -f "$f" ] && git add "$f"; done
           if ! git diff --cached --quiet; then
             git commit -m "反応データを更新"
-            git pull --rebase origin main
-            git push
+            # GitHubの一時的な障害（500）で保存に失敗することがあるので、やり直す
+            for i in 1 2 3 4; do
+              git pull --rebase origin main && git push && break
+              sleep $((i * 5))
+            done
           fi
