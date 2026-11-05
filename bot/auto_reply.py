@@ -359,6 +359,13 @@ def main() -> int:
     if budget <= 0:
         print(f"今日の返信は上限（{MAX_PER_DAY}件）に達しています")
         return 0
+    if ACCOUNT.max_replies_per_hour:
+        hour = now.strftime("%Y-%m-%dT%H")
+        replied_hour = sum(1 for v in done.values() if v.get("action") == "reply" and v.get("at", "").startswith(hour))
+        budget = min(budget, ACCOUNT.max_replies_per_hour - replied_hour)
+        if budget <= 0:
+            print(f"この1時間の返信は上限（{ACCOUNT.max_replies_per_hour}件）に達しています。次の1時間に回します")
+            return 0
 
     me = get_me()
     if me["username"] != ACCOUNT.username:
@@ -378,6 +385,8 @@ def main() -> int:
     if not pending:
         print("新しいコメントはありません")
         return 0
+    # 返信の返信（フォローしてもらえる一番のチャンス）を先に処理する
+    pending.sort(key=lambda c: not c.get("reply_to_our_reply"))
     for c in pending[:MAX_CLASSIFY]:
         c["_media_url"] = photo_url(c["_raw"])
 
@@ -405,6 +414,8 @@ def main() -> int:
 
     replied = 0
     stamp = lambda: datetime.now(JST).isoformat(timespec="seconds")  # noqa: E731
+    # 上限があるときも、返信の返信から先に返す
+    decisions.sort(key=lambda d: not by_id.get(str(d.get("id")), {}).get("reply_to_our_reply"))
     for d in decisions:
         c = by_id.get(str(d.get("id")))
         if not c or c["id"] in done:

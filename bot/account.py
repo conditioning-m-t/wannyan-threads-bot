@@ -29,7 +29,9 @@ LEGACY_CONFIG = {
     "report": "full",
     # 2026-10-29 Threadsの「人間であることの確認」→審査（同日復活）を受けて、返信を控えめにする
     "follow_push": False,
-    "max_replies_per_day": 15,
+    "max_replies_per_day": 40,
+    # 2026-11-05 オーナー指示：返信の返信（フォローのチャンス）を早く返す。1時間ごとに分けて、まとめ返しにしない
+    "max_replies_per_hour": 5,
 }
 
 
@@ -50,6 +52,8 @@ class Account:
     follow_push: bool = False
     # 1日に自動で返信する上限（多すぎるとスパム扱いされやすい）
     max_replies_per_day: int = 200
+    # 1時間に自動で返信する上限（0なら決めない）。1日の上限を朝のうちに使い切らないため
+    max_replies_per_hour: int = 0
 
     def path(self, name: str) -> Path:
         """アカウント専用のファイル（例：data/replied.json、drafts、products.json、reply_rules.md）。"""
