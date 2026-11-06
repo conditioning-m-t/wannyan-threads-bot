@@ -11,6 +11,7 @@
 - 絵文字が3個以上 … ⚠️
 - 同じアカウントの直近14日の案と似すぎていないか … ⚠️
 - ほかのアカウントの直近14日の案と似すぎていないか、1行目が同じでないか … ⚠️（BAN対策：似た投稿の量産をしない）
+- 反応がなかった型（bot/performance.py の「使わない型」）を使っていないか … ⚠️（2026-11-07 オーナー指示）
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import account  # noqa: E402
 from issue_format import Draft  # noqa: E402
 from post_scheduled import validate  # noqa: E402
+import performance  # noqa: E402
 
 LOOKBACK_DAYS = 14
 SIMILAR_SAME = 0.6   # 同じアカウントの過去の案との類似度の目安
@@ -76,8 +78,11 @@ def check_account(acc: account.Account, day: date, others: list[account.Account]
     past = history(acc, day, include_today=False)
     other_posts = [(o.slug, d, p) for o in others for d, p in history(o, day, include_today=True)]
 
+    avoid = performance.bad_types(acc)
     for p in posts:
         slot = p.get("slot", "?")
+        if performance.type_of(p) in avoid:
+            warns.append(f"{slot}：「{performance.type_of(p)}」は反応がなかった型です（bot/performance.py）。反応の多い型に作り直してください")
         if slot not in acc.slots:
             errors.append(f"{slot}：投稿時刻は {' / '.join(acc.slots)} のどれかにしてください")
         errors += [f"{slot}：{e}" for e in validate(Draft(slot=slot, text=p.get("text", ""), reply=p.get("reply"), topic=p.get("topic") or ""))]
