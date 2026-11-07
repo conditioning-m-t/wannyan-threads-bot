@@ -1,6 +1,76 @@
 {
   "_説明": "商品投稿に使ってよい商品と、楽天アフィリエイトのリンクの一覧。リンクは田代さんが楽天アフィリエイトで作ったものだけを使う（楽天ROOMのページは名前が出るので使わない）。factsには出典を確認できた事実だけを書く。",
-  "products": [],
+  "products": [
+    {
+      "name": "訳あり 厚切り牛タン（冷凍・塩味・切れ目入り・小分け）300g〜2kg",
+      "site": "楽天",
+      "link": "https://hb.afl.rakuten.co.jp/ichiba/593a8e45.4e727468.593a8e46.6b44eba0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbbq-wonderland%2Fatsutan-2p%2F&link_type=picttext&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJwaWN0dGV4dCIsInNpemUiOiIyNDB4MjQwIiwibmFtIjoxLCJuYW1wIjoicmlnaHQiLCJjb20iOjEsImNvbXAiOiJkb3duIiwicHJpY2UiOjEsImJvciI6MSwiY29sIjoxLCJiYnRuIjoxLCJwcm9kIjowLCJhbXAiOmZhbHNlfQ%3D%3D",
+      "category": "牛タン",
+      "target": "家で焼肉・BBQをしたい人、厚切りの牛タンが好きな人",
+      "facts": [
+        "訳ありの厚切り牛タン。冷凍・塩味・切れ目入り・小分け（1パック500g）で、300g〜2kgから選べると商品名に表示（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））",
+        "税込3,290円〜・送料別（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））"
+      ],
+      "cautions": [
+        "価格・クーポン・セールの表示は変わるので、値段は書くなら「目安」にし、クーポンの話は書かない",
+        "食べた・買ったという体験談を書かない",
+        "送料別なので「送料無料」と書かない",
+        "「仙台の牛タン」とは書かない（産地の表示を確認していない）"
+      ]
+    },
+    {
+      "name": "カット生ずわい蟹 600g（総重量800g）",
+      "site": "楽天",
+      "link": "https://hb.afl.rakuten.co.jp/ichiba/38b38f15.bae9f60b.38b38f16.8bc6a90a/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkouragumi%2F100005%2F&link_type=picttext&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJwaWN0dGV4dCIsInNpemUiOiIyNDB4MjQwIiwibmFtIjoxLCJuYW1wIjoicmlnaHQiLCJjb20iOjEsImNvbXAiOiJkb3duIiwicHJpY2UiOjEsImJvciI6MSwiY29sIjoxLCJiYnRuIjoxLCJwcm9kIjowLCJhbXAiOmZhbHNlfQ%3D%3D",
+      "category": "カニ（年末向け）",
+      "target": "年末にカニを家で食べたい人、お歳暮を探している人",
+      "facts": [
+        "カット済みの生ずわい蟹。600g（総重量800g）と商品名に表示（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））",
+        "税込5,400円・送料無料（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））"
+      ],
+      "cautions": [
+        "価格・クーポン・セールの表示は変わるので、値段は書くなら「目安」にし、クーポンの話は書かない",
+        "食べた・買ったという体験談を書かない",
+        "「楽天年間ランキング5年連続1位」はお店の表示なので使わない",
+        "「お刺身OK」など生で食べられるという話は書かない（食べ方の安全はお店の説明に任せる）",
+        "12月の年末の話題に合わせて使う"
+      ]
+    },
+    {
+      "name": "広島カキ 1kg（冷凍・むき身・加熱用・解凍後約850g）",
+      "site": "楽天",
+      "link": "https://hb.afl.rakuten.co.jp/ichiba/593a90ee.77f82f40.593a90ef.cc996c17/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmasuyone%2F130030-2%2F&link_type=picttext&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJwaWN0dGV4dCIsInNpemUiOiIyNDB4MjQwIiwibmFtIjoxLCJuYW1wIjoicmlnaHQiLCJjb20iOjEsImNvbXAiOiJkb3duIiwicHJpY2UiOjEsImJvciI6MSwiY29sIjoxLCJiYnRuIjoxLCJwcm9kIjowLCJhbXAiOmZhbHNlfQ%3D%3D",
+      "category": "カキ",
+      "target": "カキフライ・鍋が好きな人、冬の海鮮を取り寄せたい人",
+      "facts": [
+        "広島のカキのむき身、冷凍1kg（解凍後約850g・30粒前後・4〜5人前）、**加熱用**と商品名に表示（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））",
+        "税込6,559円・送料無料（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点）。半額クーポンの表示は期間限定なので書かない）"
+      ],
+      "cautions": [
+        "価格・クーポン・セールの表示は変わるので、値段は書くなら「目安」にし、クーポンの話は書かない",
+        "食べた・買ったという体験談を書かない",
+        "**加熱用**。生で食べる話は絶対に書かない。紹介するときは「カキフライ」「鍋」など火を通す場面にする",
+        "「グルメ大賞」はお店の表示なので使わない"
+      ]
+    },
+    {
+      "name": "銀だら入り 西京漬・粕漬セット（5〜8切入）",
+      "site": "楽天",
+      "link": "https://hb.afl.rakuten.co.jp/ichiba/593a918c.3fd46848.593a918d.a834d909/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkado-select%2Fr121%2F&link_type=picttext&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJwaWN0dGV4dCIsInNpemUiOiIyNDB4MjQwIiwibmFtIjoxLCJuYW1wIjoicmlnaHQiLCJjb20iOjEsImNvbXAiOiJkb3duIiwicHJpY2UiOjEsImJvciI6MSwiY29sIjoxLCJiYnRuIjoxLCJwcm9kIjowLCJhbXAiOmZhbHNlfQ%3D%3D",
+      "category": "漬け魚（ギフト向け）",
+      "target": "焼くだけのおかずがほしい人、お歳暮を探している人",
+      "facts": [
+        "銀だら入りの西京漬・粕漬のセット、5〜8切入と商品名に表示（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））",
+        "税込3,580円〜・送料無料（楽天市場の商品名・価格の表示（2026-11-07にオーナーが作ったリンクの時点））"
+      ],
+      "cautions": [
+        "価格・クーポン・セールの表示は変わるので、値段は書くなら「目安」にし、クーポンの話は書かない",
+        "食べた・買ったという体験談を書かない",
+        "「6年連続受賞」はお店の表示なので使わない",
+        "「天然高級魚」は書かない"
+      ]
+    }
+  ],
   "旧・家事サボり姉さんの商品（使わない）": [
     {
       "name": "らくハピ お風呂の排水口用 ピンクヌメリ予防 防カビプラス 1個入×3",
