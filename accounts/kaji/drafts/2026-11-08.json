@@ -3,10 +3,10 @@
   "posts": [
     {
       "slot": "12:00",
-      "type": "つぶやき（擬音＋ひとこと）",
-      "memo": "シンプルなつぶやき。いいねで伸ばす",
+      "type": "商品（擬音＋ひとこと）",
+      "memo": "商品投稿の初回テスト（週1本）。1投稿目は見習う型の擬音＋ひとこと、2投稿目で厚切り牛タン",
       "text": "ジューッ。\n日曜の「なんでもいい」は、だいたい焼肉のこと。",
-      "reply": null,
+      "reply": "焼肉の気分の日のために、冷凍の厚切り牛タンを小分けでストックしておく手もある。\n塩味・切れ目入りで、焼くだけ👇\nhttps://hb.afl.rakuten.co.jp/ichiba/593a8e45.4e727468.593a8e46.6b44eba0/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fbbq-wonderland%2Fatsutan-2p%2F&link_type=picttext&ut=eyJwYWdlIjoiaXRlbSIsInR5cGUiOiJwaWN0dGV4dCIsInNpemUiOiIyNDB4MjQwIiwibmFtIjoxLCJuYW1wIjoicmlnaHQiLCJjb20iOjEsImNvbXAiOiJkb3duIiwicHJpY2UiOjEsImJvciI6MSwiY29sIjoxLCJiYnRuIjoxLCJwcm9kIjowLCJhbXAiOmZhbHNlfQ%3D%3D PR",
       "topic": "お取り寄せ"
     },
     {
